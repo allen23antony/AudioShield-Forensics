@@ -1,0 +1,14 @@
+{
+  "threshold": 0.40700000000000003,
+  "selection_method": "balanced_accuracy_with_spoof_recall_constraint",
+  "selection_source": "dev_only",
+  "dev_accuracy": 0.9993962324907423,
+  "dev_precision": 0.9998653923812088,
+  "dev_recall": 0.9994617868675996,
+  "dev_f1": 0.9996635488863468,
+  "dev_balanced_accuracy": 0.9991421964165313,
+  "dev_specificity": 0.9988226059654631,
+  "dev_fpr": 0.0011773940345368916,
+  "dev_tpr": 0.9994617868675996,
+  "timestamp": "2026-09-02T08:12:19Z"
+}

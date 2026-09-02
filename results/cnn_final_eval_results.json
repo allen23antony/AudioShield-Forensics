@@ -1,0 +1,57 @@
+{
+  "model": "CNN",
+  "checkpoint": "C:\\Users\\allen\\AudioShield-Forensics\\models\\cnn\\cnn_final_best.pth",
+  "dataset": "ASVspoof 2019 LA",
+  "split": "eval",
+  "total_samples": 71237,
+  "bonafide_samples": 7355,
+  "spoof_samples": 63882,
+  "best_epoch": 4,
+  "best_validation_loss": 0.003000220499216719,
+  "threshold": {
+    "value": 0.40700000000000003,
+    "source": "frozen_dev_threshold",
+    "selection_method": "balanced_accuracy_with_spoof_recall_constraint",
+    "selection_source": "dev_only",
+    "path": "C:\\Users\\allen\\AudioShield-Forensics\\results\\cnn_final_threshold.json"
+  },
+  "normalization": {
+    "method": "min-max",
+    "train_min": -80.0,
+    "train_max": 0.0,
+    "source": "C:\\Users\\allen\\AudioShield-Forensics\\results\\cnn_final_norm.json"
+  },
+  "threshold_independent_metrics": {
+    "roc_auc": 0.9800478133427984,
+    "eer": 0.0716185237520802,
+    "eer_percent": 7.161852375208019
+  },
+  "metrics": {
+    "accuracy": 0.6982888105900024,
+    "precision": 0.9998820726903936,
+    "recall": 0.6636298174759713,
+    "f1_score": 0.7977719441856964,
+    "specificity": 0.9993201903467029,
+    "fpr": 0.0006798096532970768,
+    "tpr": 0.6636298174759713,
+    "balanced_accuracy": 0.8314750039113371,
+    "threshold": 0.40700000000000003,
+    "selection_method": "balanced_accuracy_with_spoof_recall_constraint"
+  },
+  "confusion_matrix": {
+    "labels": [
+      "bonafide",
+      "spoof"
+    ],
+    "matrix": [
+      [
+        7350,
+        5
+      ],
+      [
+        21488,
+        42394
+      ]
+    ]
+  }
+}

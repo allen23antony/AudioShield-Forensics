@@ -1,0 +1,279 @@
+{
+  "source_artifacts": {
+    "cnn": "C:\\Users\\allen\\AudioShield-Forensics\\results\\cnn_final_eval_results.json",
+    "aasist": "C:\\Users\\allen\\AudioShield-Forensics\\results\\aasist\\aasist_eval_results.json",
+    "cnn_attack": "C:\\Users\\allen\\AudioShield-Forensics\\results\\cnn_final_attack_analysis.json",
+    "aasist_attack": "C:\\Users\\allen\\AudioShield-Forensics\\results\\aasist\\aasist_attack_analysis.json"
+  },
+  "protocol": "Train -> Dev threshold selection -> frozen threshold -> Official Eval",
+  "threshold_tuning_performed": false,
+  "metric_categories": {
+    "threshold_dependent": [
+      "accuracy",
+      "f1",
+      "fpr",
+      "precision",
+      "recall",
+      "specificity"
+    ],
+    "threshold_independent": [
+      "roc_auc",
+      "eer"
+    ]
+  },
+  "overall": {
+    "accuracy": {
+      "cnn": 0.6982888105900024,
+      "aasist": 0.8842034336089392,
+      "absolute_difference_aasist_minus_cnn": 0.1859146230189368,
+      "relative_difference_percent": 26.624316500482472,
+      "better": "AASIST"
+    },
+    "precision": {
+      "cnn": 0.9998820726903936,
+      "aasist": 0.9976029051358651,
+      "absolute_difference_aasist_minus_cnn": -0.002279167554528505,
+      "relative_difference_percent": -0.22794363623261332,
+      "better": "CNN"
+    },
+    "recall": {
+      "cnn": 0.6636298174759713,
+      "aasist": 0.8729689114304499,
+      "absolute_difference_aasist_minus_cnn": 0.20933909395447858,
+      "relative_difference_percent": 31.544558192197016,
+      "better": "AASIST"
+    },
+    "f1": {
+      "cnn": 0.7977719441856964,
+      "aasist": 0.9311338002888557,
+      "absolute_difference_aasist_minus_cnn": 0.13336185610315932,
+      "relative_difference_percent": 16.716789437774064,
+      "better": "AASIST"
+    },
+    "specificity": {
+      "cnn": 0.9993201903467029,
+      "aasist": 0.9817811012916383,
+      "absolute_difference_aasist_minus_cnn": -0.017539089055064627,
+      "relative_difference_percent": -1.755102040816331,
+      "better": "CNN"
+    },
+    "fpr": {
+      "cnn": 0.0006798096532970768,
+      "aasist": 0.018218898708361658,
+      "absolute_difference_aasist_minus_cnn": 0.017539089055064582,
+      "relative_difference_percent": 2580.0,
+      "better": "CNN"
+    },
+    "roc_auc": {
+      "cnn": 0.9800478133427984,
+      "aasist": 0.9797307944408296,
+      "absolute_difference_aasist_minus_cnn": -0.0003170189019688907,
+      "relative_difference_percent": -0.03234728935189254,
+      "better": "CNN"
+    },
+    "eer": {
+      "cnn": 0.0716185237520802,
+      "aasist": 0.06375433538012629,
+      "absolute_difference_aasist_minus_cnn": -0.007864188371953906,
+      "relative_difference_percent": -10.98066248779037,
+      "better": "AASIST"
+    }
+  },
+  "attack_wise": [
+    {
+      "attack": "A07",
+      "cnn_recall": 1.0,
+      "aasist_recall": 0.974969474969475,
+      "recall_absolute_difference_aasist_minus_cnn": -0.025030525030525053,
+      "recall_better": "CNN",
+      "cnn_f1": 0.9994915081867182,
+      "aasist_f1": 0.9738794592946438,
+      "f1_absolute_difference_aasist_minus_cnn": -0.025612048892074357,
+      "f1_better": "CNN",
+      "cnn_eer": 6.798096532970769e-05,
+      "aasist_eer": 0.020236193043806895,
+      "eer_absolute_difference_aasist_minus_cnn": 0.020168212078477188,
+      "eer_better": "CNN"
+    },
+    {
+      "attack": "A08",
+      "cnn_recall": 0.9985754985754985,
+      "aasist_recall": 0.6829466829466829,
+      "recall_absolute_difference_aasist_minus_cnn": -0.3156288156288156,
+      "recall_better": "CNN",
+      "cnn_f1": 0.9987787502544271,
+      "aasist_f1": 0.7986673012851023,
+      "f1_absolute_difference_aasist_minus_cnn": -0.20011144896932476,
+      "f1_better": "CNN",
+      "cnn_eer": 0.0013582912291273928,
+      "aasist_eer": 0.13377685587066962,
+      "eer_absolute_difference_aasist_minus_cnn": 0.13241856464154222,
+      "eer_better": "CNN"
+    },
+    {
+      "attack": "A09",
+      "cnn_recall": 0.9782254782254782,
+      "aasist_recall": 0.9971509971509972,
+      "recall_absolute_difference_aasist_minus_cnn": 0.01892551892551897,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.9884844746041538,
+      "aasist_f1": 0.9851226377161239,
+      "f1_absolute_difference_aasist_minus_cnn": -0.0033618368880299343,
+      "f1_better": "CNN",
+      "cnn_eer": 0.002852101696425262,
+      "aasist_eer": 0.010355808554312954,
+      "eer_absolute_difference_aasist_minus_cnn": 0.007503706857887692,
+      "eer_better": "CNN"
+    },
+    {
+      "attack": "A10",
+      "cnn_recall": 0.5675620675620675,
+      "aasist_recall": 0.9835164835164835,
+      "recall_absolute_difference_aasist_minus_cnn": 0.41595441595441596,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.7236637259989621,
+      "aasist_f1": 0.9782410687177411,
+      "f1_absolute_difference_aasist_minus_cnn": 0.25457734271877897,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.027264475836875572,
+      "aasist_eer": 0.01752005327804105,
+      "eer_absolute_difference_aasist_minus_cnn": -0.009744422558834523,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A11",
+      "cnn_recall": 0.7385022385022385,
+      "aasist_recall": 0.9987789987789988,
+      "recall_absolute_difference_aasist_minus_cnn": 0.2602767602767603,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.8490875058493215,
+      "aasist_f1": 0.9859381277621535,
+      "f1_absolute_difference_aasist_minus_cnn": 0.13685062191283204,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.015754318949424348,
+      "aasist_eer": 0.007164244723728093,
+      "eer_absolute_difference_aasist_minus_cnn": -0.008590074225696255,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A12",
+      "cnn_recall": 0.3485958485958486,
+      "aasist_recall": 0.99002849002849,
+      "recall_absolute_difference_aasist_minus_cnn": 0.6414326414326414,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.5165862484921593,
+      "aasist_f1": 0.9815393927166347,
+      "f1_absolute_difference_aasist_minus_cnn": 0.4649531442244754,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.051032137537915925,
+      "aasist_eer": 0.014260508482126422,
+      "eer_absolute_difference_aasist_minus_cnn": -0.036771629055789505,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A13",
+      "cnn_recall": 0.46194546194546193,
+      "aasist_recall": 1.0,
+      "recall_absolute_difference_aasist_minus_cnn": 0.5380545380545381,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.6315203783558214,
+      "aasist_f1": 0.9865488857659105,
+      "f1_absolute_difference_aasist_minus_cnn": 0.35502850741008907,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.033036660195055856,
+      "aasist_eer": 0.005127029226281445,
+      "eer_absolute_difference_aasist_minus_cnn": -0.027909630968774413,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A14",
+      "cnn_recall": 0.9934879934879934,
+      "aasist_recall": 0.9993894993894994,
+      "recall_absolute_difference_aasist_minus_cnn": 0.0059015059015059546,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.9962248750127538,
+      "aasist_f1": 0.9862435987548951,
+      "f1_absolute_difference_aasist_minus_cnn": -0.009981276257858718,
+      "f1_better": "CNN",
+      "cnn_eer": 0.0022407157009468317,
+      "aasist_eer": 0.005908146288839703,
+      "eer_absolute_difference_aasist_minus_cnn": 0.0036674305878928717,
+      "eer_better": "CNN"
+    },
+    {
+      "attack": "A15",
+      "cnn_recall": 0.4568579568579569,
+      "aasist_recall": 0.9932844932844933,
+      "recall_absolute_difference_aasist_minus_cnn": 0.5364265364265364,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.6267448352875489,
+      "aasist_f1": 0.9831805821331453,
+      "f1_absolute_difference_aasist_minus_cnn": 0.3564357468455964,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.028690748031332675,
+      "aasist_eer": 0.012325043086429895,
+      "eer_absolute_difference_aasist_minus_cnn": -0.01636570494490278,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A16",
+      "cnn_recall": 1.0,
+      "aasist_recall": 0.9755799755799756,
+      "recall_absolute_difference_aasist_minus_cnn": -0.024420024420024444,
+      "recall_better": "CNN",
+      "cnn_f1": 0.9994915081867182,
+      "aasist_f1": 0.974192237350132,
+      "f1_absolute_difference_aasist_minus_cnn": -0.02529927083658612,
+      "f1_better": "CNN",
+      "cnn_eer": 0.000577174166569135,
+      "aasist_eer": 0.021662465238263994,
+      "eer_absolute_difference_aasist_minus_cnn": 0.021085291071694857,
+      "eer_better": "CNN"
+    },
+    {
+      "attack": "A17",
+      "cnn_recall": 0.011396011396011397,
+      "aasist_recall": 0.2140822140822141,
+      "recall_absolute_difference_aasist_minus_cnn": 0.2026862026862027,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.022512562814070353,
+      "aasist_f1": 0.34491803278688526,
+      "f1_absolute_difference_aasist_minus_cnn": 0.32240546997281494,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.24144402693009084,
+      "aasist_eer": 0.21102131370656185,
+      "eer_absolute_difference_aasist_minus_cnn": -0.03042271322352899,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A18",
+      "cnn_recall": 0.09523809523809523,
+      "aasist_recall": 0.726902726902727,
+      "recall_absolute_difference_aasist_minus_cnn": 0.6316646316646317,
+      "recall_better": "AASIST",
+      "cnn_f1": 0.1737516242806757,
+      "aasist_f1": 0.8287703016241299,
+      "f1_absolute_difference_aasist_minus_cnn": 0.6550186773434542,
+      "f1_better": "AASIST",
+      "cnn_eer": 0.13438824186614803,
+      "aasist_eer": 0.0707591373804834,
+      "eer_absolute_difference_aasist_minus_cnn": -0.06362910448566464,
+      "eer_better": "AASIST"
+    },
+    {
+      "attack": "A19",
+      "cnn_recall": 0.9768009768009768,
+      "aasist_recall": 0.811965811965812,
+      "recall_absolute_difference_aasist_minus_cnn": -0.1648351648351648,
+      "recall_better": "CNN",
+      "cnn_f1": 0.9877559419693384,
+      "aasist_f1": 0.8829387032529321,
+      "f1_absolute_difference_aasist_minus_cnn": -0.10481723871640625,
+      "f1_better": "CNN",
+      "cnn_eer": 0.007911149957377,
+      "aasist_eer": 0.050454963371346785,
+      "eer_absolute_difference_aasist_minus_cnn": 0.04254381341396979,
+      "eer_better": "CNN"
+    }
+  ]
+}

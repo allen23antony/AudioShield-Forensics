@@ -1,0 +1,9 @@
+{
+  "method": "min-max",
+  "train_min": -80.0,
+  "train_max": 0.0,
+  "clipping_enabled": true,
+  "normalization_formula": "clip((X - train_min) / (train_max - train_min + 1e-8), 0, 1)",
+  "seed": 42,
+  "mode": "full"
+}

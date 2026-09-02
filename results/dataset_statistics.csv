@@ -1,0 +1,4 @@
+split,total_samples,bonafide_count,spoof_count,bonafide_pct,spoof_pct,missing_audio_files_count
+train,25380,2580,22800,10.17,89.83,0
+dev,24844,2548,22296,10.26,89.74,0
+eval,71237,7355,63882,10.32,89.68,0

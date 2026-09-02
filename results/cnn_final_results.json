@@ -1,0 +1,38 @@
+{
+  "dataset_mode": "full",
+  "seed": 42,
+  "train_samples": 25380,
+  "dev_samples": 24844,
+  "eval_samples": 71237,
+  "train_bonafide": 2580,
+  "train_spoof": 22800,
+  "dev_bonafide": 2548,
+  "dev_spoof": 22296,
+  "eval_bonafide": 7355,
+  "eval_spoof": 63882,
+  "normalization": {
+    "method": "min-max",
+    "train_min": -80.0,
+    "train_max": 0.0,
+    "clipping_enabled": true,
+    "normalization_formula": "clip((X - train_min) / (train_max - train_min + 1e-8), 0, 1)",
+    "seed": 42,
+    "mode": "full"
+  },
+  "hyperparameters": {
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "patience": 5
+  },
+  "best_epoch": 4,
+  "best_val_loss": 0.003000220499216719,
+  "metrics": {
+    "accuracy": 0.9992754789888907,
+    "precision": 0.9998653742595585,
+    "recall": 0.9993272335844995,
+    "f1_score": 0.9995962314939435,
+    "roc_auc": 0.9999946488490238,
+    "eer": 0.001306314527135709
+  }
+}
