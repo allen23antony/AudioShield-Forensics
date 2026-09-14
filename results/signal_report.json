@@ -1,0 +1,82 @@
+{
+  "spectral_features": {
+    "spectral_centroid": {
+      "mean": 887.0816367725992,
+      "std": 1054.6279422380699,
+      "min": 0.0,
+      "max": 4697.450802419621
+    },
+    "spectral_bandwidth": {
+      "mean": 877.0676937762518,
+      "std": 900.0006089737436,
+      "min": 0.0,
+      "max": 2613.788826875332
+    },
+    "spectral_rolloff": {
+      "mean": 1841.5107484076434,
+      "std": 2013.5102089197565,
+      "min": 0.0,
+      "max": 6625.0
+    },
+    "spectral_flatness": {
+      "mean": 0.5007465512804675,
+      "std": 0.4904759870285128,
+      "min": 0.0007324606413021684,
+      "max": 1.0000007152557373
+    },
+    "spectral_contrast": {
+      "mean": 18.575692857382748,
+      "std": 6.0476026533270915,
+      "min": 3.8230853257893145,
+      "max": 33.0153944278325
+    }
+  },
+  "temporal_features": {
+    "zero_crossing_rate": {
+      "mean": 0.05530329418789809,
+      "std": 0.0919807994839511,
+      "min": 0.0,
+      "max": 0.3544921875
+    },
+    "rms_energy": {
+      "mean": 0.04569135930751724,
+      "std": 0.06330303652752556,
+      "min": 0.0,
+      "max": 0.21424275636672974
+    },
+    "pitch": {
+      "mean": 125.7816213227827,
+      "std": 27.35128909669236,
+      "min": 65.40639132514966,
+      "max": 192.63059450929475
+    }
+  },
+  "anomalies": {
+    "anomalies": [],
+    "risk_score": "low",
+    "summary": "No broad signal-level anomalies identified."
+  },
+  "temporal_analysis": {
+    "consistency_score": 1.0,
+    "anomalies": [],
+    "summary": "Temporal patterns are broadly consistent.",
+    "pitch_analysis": {
+      "stability_score": 1.0,
+      "anomalies": [],
+      "description": "Pitch contour is broadly continuous."
+    },
+    "energy_analysis": {
+      "energy_mean": 0.045691363513469696,
+      "energy_std": 0.06330303847789764,
+      "anomalies": []
+    }
+  },
+  "plots": [
+    "results\\signal_plots\\waveform.png",
+    "results\\signal_plots\\spectrogram.png",
+    "results\\signal_plots\\mfcc.png",
+    "results\\signal_plots\\pitch_contour.png"
+  ],
+  "signal_risk": "low",
+  "summary": "Signal risk is low. No broad signal-level anomalies identified."
+}

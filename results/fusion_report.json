@@ -1,0 +1,62 @@
+{
+  "ai_evidence": {
+    "cnn": {
+      "label": "unknown",
+      "confidence": null
+    },
+    "svm": {
+      "label": "unknown",
+      "confidence": null
+    },
+    "aasist": {
+      "label": "unknown",
+      "confidence": null
+    },
+    "consensus": "unknown",
+    "ai_risk": "medium",
+    "details": "No AI model results were provided.",
+    "source_error": "AI results were not provided."
+  },
+  "metadata_evidence": {
+    "risk_score": "medium",
+    "findings": [
+      {
+        "field": "timestamps",
+        "has_issue": true,
+        "severity": "medium",
+        "description": "Creation and modification timestamps are more than 30 days apart; this is inconsistent."
+      },
+      {
+        "field": "device",
+        "has_issue": true,
+        "severity": "low",
+        "description": "Device information is missing; provenance cannot be verified from metadata alone."
+      },
+      {
+        "field": "encoder",
+        "has_issue": true,
+        "severity": "low",
+        "description": "Encoder or software information is missing."
+      }
+    ],
+    "summary": "Metadata risk is medium."
+  },
+  "signal_evidence": {
+    "signal_risk": "low",
+    "anomalies": [],
+    "summary": "Signal risk is low. No broad signal-level anomalies identified."
+  },
+  "fusion": {
+    "overall_risk": "medium",
+    "assessment": "inconclusive",
+    "confidence": 0.0,
+    "reasoning": "Source risks are AI=medium, metadata=medium, signal=low; applied documented rule-based logic.",
+    "evidence_summary": [
+      "AI consensus: unknown (risk: medium).",
+      "Metadata risk: medium; 3 finding(s).",
+      "Signal risk: low; 0 anomaly/anomalies.",
+      "AI evidence unavailable: AI results were not provided."
+    ],
+    "recommendation": "Evidence is mixed or incomplete; requires further investigation."
+  }
+}
