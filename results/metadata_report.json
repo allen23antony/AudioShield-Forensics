@@ -84,7 +84,7 @@
       "FileSize": "49 kB",
       "ZoneIdentifier": "Exists",
       "FileModifyDate": "2026:08:30 18:07:06+05:30",
-      "FileAccessDate": "2026:09:13 19:49:45+05:30",
+      "FileAccessDate": "2026:09:14 11:50:58+05:30",
       "FileCreateDate": "2018:12:11 23:45:52+05:30",
       "FilePermissions": "-rw-rw-rw-",
       "FileType": "FLAC",
@@ -150,6 +150,5 @@
       "software",
       "comments"
     ]
-  },
-  "report": "Metadata Forensics Report\nRisk score: medium\nSuspicious fields: timestamps\nMissing fields: device_info, encoder, software, comments\n\nFindings:\n- [medium] timestamps: Creation and modification timestamps are more than 30 days apart; this is inconsistent.\n- [low] device: Device information is missing; provenance cannot be verified from metadata alone.\n- [low] encoder: Encoder or software information is missing.\nMetadata findings are indicators only and require further investigation."
+  }
 }

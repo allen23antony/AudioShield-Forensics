@@ -1,0 +1,15 @@
+AudioShield Evidence Fusion Report
+====================================
+Overall risk: high
+Assessment: likely_synthetic
+Evidence confidence: 1.00
+
+Evidence summary:
+- AI consensus: spoof (risk: high).
+- Metadata risk: medium; 3 finding(s).
+- Signal risk: low; 0 anomaly/anomalies.
+
+Reasoning: Source risks are AI=high, metadata=medium, signal=low; applied documented rule-based logic.
+Recommendation: Likely synthetic indicators require further investigation.
+
+This report summarizes indicators from independent sources; it does not establish authenticity by itself.
