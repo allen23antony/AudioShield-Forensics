@@ -6,11 +6,11 @@
     },
     "svm": {
       "label": "spoof",
-      "confidence": 0.9999868162649617
+      "confidence": 0.9947267878980394
     },
     "aasist": {
       "label": "spoof",
-      "confidence": 0.9993594288825989
+      "confidence": 0.9910380840301514
     },
     "consensus": "spoof",
     "ai_risk": "high",
@@ -18,14 +18,8 @@
     "source_error": null
   },
   "metadata_evidence": {
-    "risk_score": "medium",
+    "risk_score": "low",
     "findings": [
-      {
-        "field": "timestamps",
-        "has_issue": true,
-        "severity": "medium",
-        "description": "Creation and modification timestamps are more than 30 days apart; this is inconsistent."
-      },
       {
         "field": "device",
         "has_issue": true,
@@ -39,22 +33,22 @@
         "description": "Encoder or software information is missing."
       }
     ],
-    "summary": "Metadata risk is medium."
+    "summary": "Metadata risk is low."
   },
   "signal_evidence": {
-    "signal_risk": "low",
+    "signal_risk": "medium",
     "anomalies": [],
-    "summary": "Signal risk is low. No broad signal-level anomalies identified."
+    "summary": "Signal risk is medium. No broad signal-level anomalies identified."
   },
   "fusion": {
     "overall_risk": "high",
     "assessment": "likely_synthetic",
-    "confidence": 0.9997820817158535,
-    "reasoning": "Source risks are AI=high, metadata=medium, signal=low; applied documented rule-based logic.",
+    "confidence": 0.9952549573093968,
+    "reasoning": "Source risks are AI=high, metadata=low, signal=medium; applied documented rule-based logic.",
     "evidence_summary": [
       "AI consensus: spoof (risk: high).",
-      "Metadata risk: medium; 3 finding(s).",
-      "Signal risk: low; 0 anomaly/anomalies."
+      "Metadata risk: low; 2 finding(s).",
+      "Signal risk: medium; 0 anomaly/anomalies."
     ],
     "recommendation": "Likely synthetic indicators require further investigation."
   }

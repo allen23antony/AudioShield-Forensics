@@ -6,22 +6,22 @@
   },
   "svm": {
     "label": "spoof",
-    "confidence": 0.9999868162649617,
-    "probability": 0.9999868162649617
+    "confidence": 0.9947267878980394,
+    "probability": 0.9947267878980394
   },
   "aasist": {
     "label": "spoof",
-    "confidence": 0.9993594288825989,
-    "probability": 0.9993594288825989
+    "confidence": 0.9910380840301514,
+    "probability": 0.9910380840301514
   },
   "consensus": {
     "label": "spoof",
-    "confidence": 0.9997820817158535,
+    "confidence": 0.9952549573093968,
     "agreement": 1.0
   },
   "ai_risk": "high",
   "device": "cuda",
-  "timestamp": "2026-09-14T06:20:57.294969+00:00",
+  "timestamp": "2026-09-14T08:14:34.085255+00:00",
   "model_versions": {
     "cnn": "cnn_final_best",
     "svm": "svm_model",
