@@ -1,0 +1,15 @@
+{
+  "model": "SVM",
+  "split": "official_eval",
+  "total_samples": 71237,
+  "bonafide_samples": 7355,
+  "spoof_samples": 63882,
+  "metrics": {
+    "accuracy": 0.8940017125931748,
+    "precision": 0.9543628708319218,
+    "recall": 0.926082464544003,
+    "f1_score": 0.9400100102485879,
+    "roc_auc": 0.874909277304299,
+    "eer": 0.16983042600362058
+  }
+}

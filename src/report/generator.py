@@ -193,6 +193,12 @@ def format_fusion_section(fusion: Dict[str, Any]) -> List[Any]:
                                f"Confidence: <b>{_text(combined.get('confidence'))}</b>", _BODY_STYLE))
     flowables.append(Paragraph(f"Reasoning: {_text(combined.get('reasoning'))}", _BODY_STYLE))
     flowables.append(Paragraph(f"Recommendation: {_text(combined.get('recommendation'))}", _BODY_STYLE))
+    flowables.append(Paragraph("AI model breakdown", _SUBSECTION_STYLE))
+    model_rows = [["Model", "Label", "Confidence"]]
+    for model_name in ("cnn", "svm", "aasist"):
+        result = ai.get(model_name, {})
+        model_rows.append([model_name.upper(), result.get("label", "unknown"), result.get("confidence", "Not available")])
+    flowables.append(_table(model_rows, [1.5 * inch, 2.0 * inch, 3.45 * inch]))
     return flowables
 
 
@@ -202,6 +208,85 @@ def _bullet_list(items: Iterable[Any]) -> List[Any]:
 
 def _section(title: str) -> List[Any]:
     return [Paragraph(title, _SECTION_STYLE)]
+
+
+def _load_ai_evaluations() -> Dict[str, Any]:
+    """Load Eval-set metrics for each model, tolerating unavailable result files."""
+    paths = {
+        "CNN": Path("results") / "cnn_final_eval_results.json",
+        "SVM": Path("results") / "svm_eval_results.json",
+        "AASIST": Path("results") / "aasist" / "aasist_eval_results.json",
+    }
+    evaluations: Dict[str, Any] = {}
+    for model, path in paths.items():
+        payload = _load_json(path)
+        metrics = payload.get("metrics", payload)
+        if model == "CNN":
+            eer = payload.get("threshold_independent_metrics", {}).get("eer")
+            f1 = metrics.get("f1_score")
+        else:
+            eer = metrics.get("eer")
+            f1 = metrics.get("f1_score", metrics.get("f1"))
+        evaluations[model] = {
+            "accuracy": metrics.get("accuracy"),
+            "f1": f1,
+            "eer": eer,
+            "path": str(path),
+            "raw": payload,
+        }
+    available = [
+        (model, values)
+        for model, values in evaluations.items()
+        if all(values.get(metric) is not None for metric in ("accuracy", "f1", "eer"))
+    ]
+    metric_ranks: Dict[str, Dict[str, int]] = {model: {} for model, _ in available}
+    for metric, reverse in (("accuracy", True), ("f1", True), ("eer", False)):
+        ordered = sorted(available, key=lambda item: float(item[1][metric]), reverse=reverse)
+        for rank, (model, _) in enumerate(ordered, start=1):
+            metric_ranks[model][metric] = rank
+    ranked = sorted(
+        available,
+        key=lambda item: (
+            sum(metric_ranks[item[0]].values()) / 3,
+            float(item[1]["eer"]),
+        ),
+    )
+    for rank, (model, values) in enumerate(ranked, start=1):
+        values["rank"] = rank
+    return evaluations
+
+
+def _format_percent(value: Any) -> str:
+    try:
+        return f"{float(value) * 100:.2f}%"
+    except (TypeError, ValueError):
+        return "N/A"
+
+
+def format_ai_detection_section(evaluations: Dict[str, Any]) -> List[Any]:
+    """Return flowables for the fair official-Eval model comparison."""
+    rows = [["Model", "Accuracy", "F1", "EER", "Rank"]]
+    for model in ("CNN", "SVM", "AASIST"):
+        values = evaluations.get(model, {})
+        rank = values.get("rank")
+        rows.append([
+            model,
+            _format_percent(values.get("accuracy")),
+            _text(f"{float(values['f1']):.4f}") if values.get("f1") is not None else "N/A",
+            _text(f"{float(values['eer']):.4f}") if values.get("eer") is not None else "N/A",
+            f"{rank}{'st' if rank == 1 else 'nd' if rank == 2 else 'rd' if rank == 3 else 'th'}" if rank else "N/A",
+        ])
+    best = next((model for model in ("CNN", "SVM", "AASIST") if evaluations.get(model, {}).get("rank") == 1), None)
+    return [
+        Paragraph("Official Eval-set comparison", _SUBSECTION_STYLE),
+        _table(rows, [1.15 * inch, 1.35 * inch, 1.2 * inch, 1.2 * inch, 1.05 * inch]),
+        Spacer(1, 6),
+        Paragraph(
+            f"Best model: <b>{best or 'Not available'}</b> (best balanced rank across accuracy, F1, and EER; "
+            "lower EER is better).",
+            _BODY_STYLE,
+        ),
+    ]
 
 
 def _resolve_plot(path_value: Any, roots: Iterable[Path]) -> Optional[Path]:
@@ -269,6 +354,7 @@ def generate_comprehensive_report(
     story.extend(_section("1. Executive Summary"))
     risk = combined.get("overall_risk", "Not available")
     assessment = combined.get("assessment", "Not available")
+    ai_evaluations = _load_ai_evaluations()
     story.append(Paragraph(f"Overall risk assessment: <b><font color='{_risk_color(risk).hexval()}'>{_text(risk)}</font></b>",
                            _BODY_STYLE))
     story.append(Paragraph(f"Overall assessment: <b>{_text(assessment)}</b> | Confidence: "
@@ -276,6 +362,10 @@ def generate_comprehensive_report(
     story.append(Paragraph("Key findings", _SUBSECTION_STYLE))
     key_findings = combined.get("evidence_summary", [])
     story.extend(_bullet_list(key_findings or ["No combined findings were reported."]))
+    ai_models = ", ".join(
+        f"{name} {_format_percent(values.get('accuracy'))}" for name, values in ai_evaluations.items()
+    )
+    story.append(Paragraph(f"Official Eval AI comparison: {ai_models}.", _BODY_STYLE))
     story.append(Paragraph(f"Recommendation: {_text(combined.get('recommendation'))}", _BODY_STYLE))
 
     story.extend(_section("2. File Information"))
@@ -295,14 +385,16 @@ def generate_comprehensive_report(
     file_rows.extend([[key, value] for key, value in info.items()])
     story.append(_table(file_rows, [2.15 * inch, 4.8 * inch]))
 
-    story.extend(_section("3. Metadata Forensics"))
+    story.extend(_section("3. AI Detection Results"))
+    story.extend(format_ai_detection_section(ai_evaluations))
+    story.extend(_section("4. Metadata Forensics"))
     story.extend(format_metadata_section(metadata))
-    story.extend(_section("4. Signal Forensics"))
+    story.extend(_section("5. Signal Forensics"))
     story.extend(format_signal_section(signal))
-    story.extend(_section("5. Evidence Fusion"))
+    story.extend(_section("6. Evidence Fusion"))
     story.extend(format_fusion_section(fusion))
 
-    story.extend(_section("6. Visual Analysis"))
+    story.extend(_section("7. Visual Analysis"))
     plot_values = signal.get("plots", [])
     plot_names = [("Waveform", "Time-domain waveform"), ("Spectrogram", "Frequency content over time"),
                   ("MFCC", "Mel-frequency cepstral coefficients"), ("Pitch contour", "Estimated fundamental frequency")]
@@ -317,7 +409,7 @@ def generate_comprehensive_report(
         else:
             story.append(Paragraph(f"{name}: plot not available.", _BODY_STYLE))
 
-    story.extend(_section("7. Conclusion"))
+    story.extend(_section("8. Conclusion"))
     story.append(Paragraph(f"The combined evidence indicates an overall assessment of <b>{_text(assessment)}</b> "
                            f"with a reported risk level of <b>{_text(risk)}</b>. These are indicators from the "
                            "available reports and should be interpreted with the original audio and chain of custody.",
@@ -326,7 +418,9 @@ def generate_comprehensive_report(
                            "features are influenced by recording conditions and preprocessing; and this report does "
                            "not establish authenticity by itself.", _BODY_STYLE))
 
-    story.extend(_section("8. Appendix"))
+    story.extend(_section("9. Appendix"))
+    story.append(Paragraph("Raw AI evaluation results", _SUBSECTION_STYLE))
+    story.append(Paragraph(f"<font name='Courier'>{_text({model: values['raw'] for model, values in ai_evaluations.items()})}</font>", _SMALL_STYLE))
     story.append(Paragraph("Raw metadata report", _SUBSECTION_STYLE))
     story.append(Paragraph(f"<font name='Courier'>{_text(metadata)}</font>", _SMALL_STYLE))
     story.append(Paragraph("Raw signal report", _SUBSECTION_STYLE))
