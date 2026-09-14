@@ -1,0 +1,30 @@
+{
+  "cnn": {
+    "label": "spoof",
+    "confidence": 1.0,
+    "probability": 1.0
+  },
+  "svm": {
+    "label": "spoof",
+    "confidence": 0.9999868162649617,
+    "probability": 0.9999868162649617
+  },
+  "aasist": {
+    "label": "spoof",
+    "confidence": 0.9993594288825989,
+    "probability": 0.9993594288825989
+  },
+  "consensus": {
+    "label": "spoof",
+    "confidence": 0.9997820817158535,
+    "agreement": 1.0
+  },
+  "ai_risk": "high",
+  "device": "cuda",
+  "timestamp": "2026-09-14T06:20:57.294969+00:00",
+  "model_versions": {
+    "cnn": "cnn_final_best",
+    "svm": "svm_model",
+    "aasist": "aasist_best"
+  }
+}

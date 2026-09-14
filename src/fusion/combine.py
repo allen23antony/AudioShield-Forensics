@@ -9,14 +9,14 @@ from typing import Any
 from .risk import calculate_ai_risk, calculate_metadata_risk, calculate_overall_risk, calculate_signal_risk
 
 
-def load_ai_results(result_path: Path) -> dict[str, Any]:
-    """Load AI detection results from JSON, returning an explicit error on failure."""
-    path = Path(result_path)
+def load_ai_results(result_path: Path | None = None) -> dict[str, Any]:
+    """Load AI detection results, defaulting to the pipeline output location."""
+    path = Path(result_path) if result_path is not None else Path("results") / "ai_predictions.json"
     try:
         with path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
     except FileNotFoundError:
-        return {"error": f"AI results file not found: {path}"}
+        return {}
     except (OSError, json.JSONDecodeError) as exc:
         return {"error": f"Unable to load AI results from {path}: {exc}"}
     return data if isinstance(data, dict) else {"error": f"AI results must contain a JSON object: {path}"}
@@ -93,4 +93,3 @@ def generate_evidence_summary(evidence: dict[str, Any]) -> list[str]:
     if ai.get("source_error"):
         summary.append(f"AI evidence unavailable: {ai['source_error']}")
     return summary
-

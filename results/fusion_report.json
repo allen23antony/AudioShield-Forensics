@@ -1,21 +1,21 @@
 {
   "ai_evidence": {
     "cnn": {
-      "label": "unknown",
-      "confidence": null
+      "label": "spoof",
+      "confidence": 1.0
     },
     "svm": {
-      "label": "unknown",
-      "confidence": null
+      "label": "spoof",
+      "confidence": 0.9999868162649617
     },
     "aasist": {
-      "label": "unknown",
-      "confidence": null
+      "label": "spoof",
+      "confidence": 0.9993594288825989
     },
-    "consensus": "unknown",
-    "ai_risk": "medium",
-    "details": "No AI model results were provided.",
-    "source_error": "AI results were not provided."
+    "consensus": "spoof",
+    "ai_risk": "high",
+    "details": "3 AI model result(s); 3 support the spoof consensus.",
+    "source_error": null
   },
   "metadata_evidence": {
     "risk_score": "medium",
@@ -47,16 +47,15 @@
     "summary": "Signal risk is low. No broad signal-level anomalies identified."
   },
   "fusion": {
-    "overall_risk": "medium",
-    "assessment": "inconclusive",
-    "confidence": 0.0,
-    "reasoning": "Source risks are AI=medium, metadata=medium, signal=low; applied documented rule-based logic.",
+    "overall_risk": "high",
+    "assessment": "likely_synthetic",
+    "confidence": 0.9997820817158535,
+    "reasoning": "Source risks are AI=high, metadata=medium, signal=low; applied documented rule-based logic.",
     "evidence_summary": [
-      "AI consensus: unknown (risk: medium).",
+      "AI consensus: spoof (risk: high).",
       "Metadata risk: medium; 3 finding(s).",
-      "Signal risk: low; 0 anomaly/anomalies.",
-      "AI evidence unavailable: AI results were not provided."
+      "Signal risk: low; 0 anomaly/anomalies."
     ],
-    "recommendation": "Evidence is mixed or incomplete; requires further investigation."
+    "recommendation": "Likely synthetic indicators require further investigation."
   }
 }

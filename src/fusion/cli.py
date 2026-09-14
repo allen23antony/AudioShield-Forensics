@@ -36,7 +36,7 @@ def main() -> int:
     if not args.audio.is_file():
         parser.error(f"Audio file not found: {args.audio}")
 
-    ai_results = load_ai_results(args.ai_results) if args.ai_results else {"error": "AI results were not provided."}
+    ai_results = load_ai_results(args.ai_results)
     metadata_wrapper = _load_json(args.metadata_results or Path("results") / "metadata_report.json", {})
     signal_analysis = _load_json(args.signal_results or Path("results") / "signal_report.json", {})
     metadata_analysis = metadata_wrapper.get("analysis", metadata_wrapper)
@@ -50,4 +50,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
