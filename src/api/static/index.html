@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AudioShield Forensics</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:      #0F172A;
+      --bg-card:      #1E293B;
+      --bg-surface:   #0F172A;
+      --teal:         #00B4D8;
+      --teal-dim:     #0096B4;
+      --teal-glow:    rgba(0,180,216,.18);
+      --low:          #10B981;
+      --medium:       #F59E0B;
+      --high:         #EF4444;
+      --low-bg:       rgba(16,185,129,.15);
+      --medium-bg:    rgba(245,158,11,.15);
+      --high-bg:      rgba(239,68,68,.15);
+      --text:         #F1F5F9;
+      --text-muted:   #94A3B8;
+      --border:       rgba(255,255,255,.07);
+      --radius:       12px;
+      --shadow:       0 4px 24px rgba(0,0,0,.4);
+      --shadow-lg:    0 8px 40px rgba(0,0,0,.55);
+      --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --mono:         'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-card) 100%);
+      min-height: 100vh;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Scrollbar ────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 3px; }
+
+    /* ── Utility ──────────────────────────────────────────────────────── */
+    .hidden   { display: none !important; }
+    .sr-only  { position: absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+
+    /* ── Header ───────────────────────────────────────────────────────── */
+    header {
+      background: rgba(15,23,42,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--teal), #0077A8);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .logo-text h1 {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: var(--teal);
+      line-height: 1;
+    }
+    .logo-text span {
+      font-size: .7rem;
+      color: var(--text-muted);
+      letter-spacing: .05em;
+    }
+    .version-badge {
+      background: var(--teal-glow);
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: .06em;
+    }
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--low);
+      box-shadow: 0 0 6px var(--low);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; } 50% { opacity: .4; }
+    }
+
+    /* ── Main Layout ──────────────────────────────────────────────────── */
+    main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+    /* ── Hero ─────────────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .hero h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 30%, var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .5rem;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ── Upload Zone ──────────────────────────────────────────────────── */
+    .upload-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+    .drop-zone {
+      border: 2px dashed rgba(0,180,216,.35);
+      border-radius: 10px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all .25s ease;
+      position: relative;
+      background: rgba(0,180,216,.03);
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .drop-icon {
+      font-size: 2.8rem;
+      margin-bottom: .75rem;
+      display: block;
+    }
+    .drop-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: .35rem;
+    }
+    .drop-sub {
+      font-size: .82rem;
+      color: var(--text-muted);
+    }
+    .drop-sub span {
+      color: var(--teal);
+      font-weight: 600;
+    }
+    .file-info-bar {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-top: 1.25rem;
+      padding: .75rem 1rem;
+      background: rgba(0,180,216,.08);
+      border: 1px solid rgba(0,180,216,.2);
+      border-radius: 8px;
+    }
+    .file-info-bar .fi-icon { font-size: 1.4rem; }
+    .file-info-bar .fi-name { font-weight: 600; font-size: .9rem; color: var(--text); }
+    .file-info-bar .fi-size { font-size: .78rem; color: var(--text-muted); }
+    .fi-clear {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color .2s;
+    }
+    .fi-clear:hover { color: var(--high); }
+
+    /* ── Analyze Button ───────────────────────────────────────────────── */
+    .btn-analyze {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 1.25rem;
+      background: linear-gradient(135deg, var(--teal), #0077A8);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: all .25s ease;
+      box-shadow: 0 4px 18px rgba(0,180,216,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+    }
+    .btn-analyze:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(0,180,216,.45);
+    }
+    .btn-analyze:active:not(:disabled) { transform: translateY(0); }
+    .btn-analyze:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── Progress ─────────────────────────────────────────────────────── */
+    .progress-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .progress-header h3 { font-size: .95rem; font-weight: 600; color: var(--text); }
+    .progress-pct { font-size: .85rem; font-weight: 700; color: var(--teal); }
+    .progress-bar-wrap {
+      height: 8px;
+      background: rgba(255,255,255,.07);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--teal), #00D4FF);
+      border-radius: 4px;
+      transition: width .5s ease;
+      position: relative;
+    }
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 40px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.35));
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { opacity: 0; } 50% { opacity: 1; }
+    }
+    .stages {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .stage {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .75rem;
+      color: var(--text-muted);
+      padding: .3rem .7rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      transition: all .3s;
+    }
+    .stage.active {
+      color: var(--teal);
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .stage.done {
+      color: var(--low);
+      border-color: var(--low);
+      background: var(--low-bg);
+    }
+    .stage .stage-icon { font-size: .85rem; }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,180,216,.3);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Cards ────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: 1.1rem;
+      padding-bottom: .9rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-header h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: .03em;
+    }
+    .card-icon { font-size: 1.1rem; }
+
+    /* ── Risk Banner ──────────────────────────────────────────────────── */
+    .risk-banner {
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .risk-banner.low    { background: var(--low-bg);    border: 1px solid var(--low);    }
+    .risk-banner.medium { background: var(--medium-bg); border: 1px solid var(--medium); }
+    .risk-banner.high   { background: var(--high-bg);   border: 1px solid var(--high);   }
+    .risk-shield { font-size: 2.8rem; line-height: 1; }
+    .risk-info { flex: 1; }
+    .risk-label {
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      line-height: 1;
+      margin-bottom: .3rem;
+    }
+    .risk-banner.low    .risk-label { color: var(--low);    }
+    .risk-banner.medium .risk-label { color: var(--medium); }
+    .risk-banner.high   .risk-label { color: var(--high);   }
+    .risk-desc { font-size: .85rem; color: var(--text-muted); margin-bottom: .75rem; }
+    .conf-bar-wrap {
+      height: 6px;
+      background: rgba(255,255,255,.1);
+      border-radius: 3px;
+      overflow: hidden;
+      max-width: 360px;
+    }
+    .conf-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .8s ease;
+    }
+    .risk-banner.low    .conf-bar-fill { background: var(--low);    }
+    .risk-banner.medium .conf-bar-fill { background: var(--medium); }
+    .risk-banner.high   .conf-bar-fill { background: var(--high);   }
+    .conf-label {
+      font-size: .72rem;
+      color: var(--text-muted);
+      margin-top: .3rem;
+    }
+    .risk-assessment {
+      font-size: .78rem;
+      font-weight: 600;
+      padding: .35rem .9rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .risk-banner.low    .risk-assessment { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low);    }
+    .risk-banner.medium .risk-assessment { background: var(--medium-bg); color: var(--medium); border: 1px solid var(--medium); }
+    .risk-banner.high   .risk-assessment { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high);   }
+
+    /* ── File Info Card ───────────────────────────────────────────────── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: .75rem;
+    }
+    .info-item { }
+    .info-label { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .15rem; }
+    .info-value { font-size: .88rem; font-weight: 600; color: var(--text); word-break: break-all; }
+
+    /* ── AI Detection Table ───────────────────────────────────────────── */
+    .model-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .86rem;
+    }
+    .model-table th {
+      text-align: left;
+      padding: .55rem .8rem;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .model-table td {
+      padding: .75rem .8rem;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      vertical-align: middle;
+    }
+    .model-table tr:last-child td { border-bottom: none; }
+    .model-table tr.consensus-row td {
+      background: rgba(0,180,216,.05);
+      font-weight: 700;
+    }
+    .model-name { font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+    .model-badge {
+      font-size: .65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .badge-cnn    { background: rgba(139,92,246,.2); color: #A78BFA; border: 1px solid rgba(139,92,246,.4); }
+    .badge-svm    { background: rgba(59,130,246,.2);  color: #60A5FA; border: 1px solid rgba(59,130,246,.4); }
+    .badge-aasist { background: rgba(0,180,216,.2);   color: var(--teal); border: 1px solid rgba(0,180,216,.4); }
+    .badge-ensemble { background: rgba(245,158,11,.15); color: #FCD34D; border: 1px solid rgba(245,158,11,.4); }
+
+    .label-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .2rem .6rem;
+      border-radius: 10px;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .label-pill.spoof       { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high); }
+    .label-pill.bonafide    { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low); }
+    .label-pill.inconclusive,
+    .label-pill.unknown     { background: rgba(148,163,184,.12); color: var(--text-muted); border: 1px solid rgba(148,163,184,.3); }
+
+    .prob-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .prob-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,.08);
+      border-radius: 3px;
+      overflow: hidden;
+      max-width: 120px;
+    }
+    .prob-bar-inner {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .7s ease;
+    }
+    .prob-val { font-size: .78rem; color: var(--text-muted); min-width: 36px; }
+
+    /* ── Risk Badge (inline) ──────────────────────────────────────────── */
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .25rem .75rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .risk-badge.low    { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low);    }
+    .risk-badge.medium { background: var(--medium-bg); color: var(--medium); border: 1px solid var(--medium); }
+    .risk-badge.high   { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high);   }
+
+    /* ── Findings / Anomalies List ────────────────────────────────────── */
+    .finding-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+    }
+    .finding-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      font-size: .85rem;
+      color: var(--text-muted);
+      padding: .45rem .7rem;
+      background: rgba(255,255,255,.03);
+      border-radius: 6px;
+      border-left: 2px solid var(--border);
+    }
+    .finding-list li .fi-bullet { color: var(--teal); flex-shrink: 0; }
+
+    /* ── Source Risks Table ───────────────────────────────────────────── */
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: .75rem;
+      margin-bottom: 1rem;
+    }
+    .source-item {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .85rem 1rem;
+    }
+    .source-name { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .4rem; }
+    .recommendation-box {
+      background: rgba(0,180,216,.06);
+      border: 1px solid rgba(0,180,216,.25);
+      border-radius: 8px;
+      padding: .9rem 1.1rem;
+      font-size: .88rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .rec-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: .35rem;
+    }
+
+    /* ── Visualizations ───────────────────────────────────────────────── */
+    .plots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .plot-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .plot-title {
+      padding: .65rem 1rem;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      border-bottom: 1px solid var(--border);
+    }
+    .plot-img-wrap {
+      padding: .75rem;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .plot-img-wrap img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+    .plot-placeholder {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .8rem;
+    }
+
+    /* ── Actions ──────────────────────────────────────────────────────── */
+    .actions-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .7rem 1.5rem;
+      border-radius: var(--radius);
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .22s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), #0077A8);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(0,180,216,.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(0,180,216,.45); }
+    .btn-secondary {
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,.12); }
+
+    /* ── Evidence Summary ─────────────────────────────────────────────── */
+    .evidence-summary {
+      margin-top: .85rem;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+    .evidence-summary .ev-line {
+      font-size: .82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+    }
+    .evidence-summary .ev-line::before {
+      content: '▸';
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+
+    /* ── Toast ────────────────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .8rem 1.1rem;
+      font-size: .84rem;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      min-width: 240px;
+      max-width: 340px;
+      animation: toast-in .3s ease;
+      pointer-events: all;
+    }
+    .toast.success { border-left: 3px solid var(--low);    }
+    .toast.error   { border-left: 3px solid var(--high);   }
+    .toast.info    { border-left: 3px solid var(--teal);   }
+    .toast.warning { border-left: 3px solid var(--medium); }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────────── */
+    footer {
+      background: rgba(15,23,42,.9);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 1.2rem 2rem;
+      font-size: .75rem;
+      color: var(--text-muted);
+      letter-spacing: .04em;
+    }
+    footer strong { color: var(--teal); }
+
+    /* ── Responsive ───────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      main { padding: 1.5rem 1rem 3rem; }
+      .hero h2 { font-size: 1.5rem; }
+      .risk-banner { flex-direction: column; text-align: center; }
+      .stages { gap: .35rem; }
+      .stage { font-size: .68rem; padding: .25rem .5rem; }
+      .plots-grid { grid-template-columns: 1fr; }
+      .actions-row { flex-direction: column; }
+      .btn { justify-content: center; }
+      .header-inner { gap: .5rem; }
+      .version-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon" aria-hidden="true">🛡️</div>
+      <div class="logo-text">
+        <h1>AUDIOSHIELD FORENSICS</h1>
+        <span>Audio Forensic Analysis System</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.9rem;">
+      <div class="status-dot" id="status-indicator">
+        <div class="dot"></div>
+        <span>System Online</span>
+      </div>
+      <span class="version-badge">v1.0.0</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Hero -->
+  <section class="hero" id="hero-section">
+    <h2>Detect Audio Deepfakes with Confidence</h2>
+    <p>Multi-model forensic analysis using CNN, SVM, and AASIST with evidence fusion and full PDF reporting.</p>
+  </section>
+
+  <!-- Upload Card -->
+  <section id="upload-section">
+    <div class="upload-card">
+      <div
+        class="drop-zone"
+        id="drop-zone"
+        role="region"
+        aria-label="File upload area"
+        tabindex="0"
+      >
+        <input
+          type="file"
+          id="file-input"
+          accept=".wav,.flac,.mp3,.ogg,.m4a,.aac"
+          aria-label="Choose audio file"
+        />
+        <span class="drop-icon" aria-hidden="true">🎵</span>
+        <p class="drop-title">Drop your audio file here</p>
+        <p class="drop-sub">or <span>click to browse</span> — WAV, FLAC, MP3, OGG, M4A, AAC</p>
+      </div>
+
+      <div class="file-info-bar hidden" id="file-info-bar" role="status">
+        <span class="fi-icon" aria-hidden="true">🎧</span>
+        <div>
+          <div class="fi-name" id="fi-name">filename.wav</div>
+          <div class="fi-size" id="fi-size">0 KB</div>
+        </div>
+        <button class="fi-clear" id="fi-clear" title="Clear file" aria-label="Remove selected file">✕</button>
+      </div>
+
+      <button class="btn-analyze" id="btn-analyze" disabled aria-label="Start forensic analysis">
+        <span>🔍</span>
+        <span id="btn-analyze-text">ANALYZE AUDIO</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Progress Card -->
+  <section id="progress-section" class="hidden" aria-live="polite" aria-label="Analysis progress">
+    <div class="progress-card">
+      <div class="progress-header">
+        <h3>🔬 Running Forensic Pipeline…</h3>
+        <span class="progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar-aria">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      <div class="stages" id="stages-container" role="list">
+        <div class="stage" id="stage-upload" role="listitem"><span class="stage-icon">📤</span> Upload</div>
+        <div class="stage" id="stage-ai"    role="listitem"><span class="stage-icon">🤖</span> AI Models</div>
+        <div class="stage" id="stage-meta"  role="listitem"><span class="stage-icon">🏷️</span> Metadata</div>
+        <div class="stage" id="stage-signal" role="listitem"><span class="stage-icon">📊</span> Signal</div>
+        <div class="stage" id="stage-fusion" role="listitem"><span class="stage-icon">⚗️</span> Fusion</div>
+        <div class="stage" id="stage-report" role="listitem"><span class="stage-icon">📄</span> Report</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Results ──────────────────────────────────────────────────────── -->
+  <section id="results-section" class="hidden" aria-label="Analysis results">
+
+    <!-- File Info -->
+    <div class="card" id="card-file-info">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">📁</span>
+        <h3>File Information</h3>
+      </div>
+      <div class="info-grid" id="file-info-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Overall Risk Banner -->
+    <div class="risk-banner medium" id="risk-banner" role="alert">
+      <div class="risk-shield" id="risk-shield" aria-hidden="true">🛡️</div>
+      <div class="risk-info">
+        <div class="risk-label" id="risk-label">MEDIUM RISK</div>
+        <div class="risk-desc" id="risk-assessment-text">Analysing…</div>
+        <div class="conf-bar-wrap">
+          <div class="conf-bar-fill" id="conf-bar" style="width:0%"></div>
+        </div>
+        <div class="conf-label" id="conf-label">Confidence: —</div>
+      </div>
+      <span class="risk-assessment" id="risk-assessment-badge">—</span>
+    </div>
+
+    <!-- AI Detection -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🤖</span>
+        <h3>AI Detection Results</h3>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="model-table" aria-label="AI model predictions">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Verdict</th>
+              <th>Confidence</th>
+              <th>Spoof Probability</th>
+            </tr>
+          </thead>
+          <tbody id="ai-table-body">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Metadata -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🏷️</span>
+        <h3>Metadata Analysis</h3>
+        <span class="risk-badge medium" id="metadata-risk-badge" style="margin-left:auto;">—</span>
+      </div>
+      <div id="metadata-findings"><!-- populated by JS --></div>
+    </div>
+
+    <!-- Signal -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">📊</span>
+        <h3>Signal Analysis</h3>
+        <span class="risk-badge medium" id="signal-risk-badge" style="margin-left:auto;">—</span>
+      </div>
+      <div id="signal-findings"><!-- populated by JS --></div>
+    </div>
+
+    <!-- Fusion -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">⚗️</span>
+        <h3>Evidence Fusion</h3>
+      </div>
+      <div class="source-grid" id="fusion-sources"><!-- populated by JS --></div>
+      <div id="evidence-summary" class="evidence-summary"></div>
+      <div style="margin-top:.85rem;">
+        <div class="rec-label">Recommendation</div>
+        <div class="recommendation-box" id="recommendation">—</div>
+      </div>
+    </div>
+
+    <!-- Visualizations -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🖼️</span>
+        <h3>Signal Visualizations</h3>
+      </div>
+      <div class="plots-grid" id="plots-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-row">
+      <button class="btn btn-primary" id="btn-download" aria-label="Download PDF report">
+        <span>📄</span> Download Report
+      </button>
+      <button class="btn btn-secondary" id="btn-new" aria-label="Analyze another file">
+        <span>🔄</span> Analyze Another
+      </button>
+    </div>
+
+  </section>
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────────────────────── -->
+<footer>
+  <strong>AudioShield Forensics</strong> &copy; 2026 &nbsp;|&nbsp; Fr. C. Rodrigues Institute of Technology &nbsp;|&nbsp; Audio Deepfake Detection System
+</footer>
+
+<!-- Toast container -->
+<div id="toast-container" role="status" aria-live="polite"></div>
+
+<!-- ── JavaScript ───────────────────────────────────────────────────────── -->
+<script>
+"use strict";
+
+/* ── State ──────────────────────────────────────────────────────────────── */
+const state = {
+  file: null,
+  fileId: null,
+  originalName: null,
+  analysisResult: null,
+};
+
+/* ── DOM refs ───────────────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const dropZone        = $('drop-zone');
+const fileInput       = $('file-input');
+const fileInfoBar     = $('file-info-bar');
+const fiName          = $('fi-name');
+const fiSize          = $('fi-size');
+const fiClear         = $('fi-clear');
+const btnAnalyze      = $('btn-analyze');
+const btnAnalyzeText  = $('btn-analyze-text');
+const progressSection = $('progress-section');
+const progressBar     = $('progress-bar');
+const progressPct     = $('progress-pct');
+const progressBarAria = $('progress-bar-aria');
+const resultsSection  = $('results-section');
+const btnDownload     = $('btn-download');
+const btnNew          = $('btn-new');
+const toastContainer  = $('toast-container');
+
+/* ── Utilities ──────────────────────────────────────────────────────────── */
+function fmt(bytes) {
+  if (bytes < 1024)       return bytes + ' B';
+  if (bytes < 1048576)    return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(2) + ' MB';
+}
+
+function cap(s) {
+  if (!s) return '—';
+  return String(s).charAt(0).toUpperCase() + String(s).slice(1);
+}
+
+function round2(n) {
+  const v = parseFloat(n);
+  return isNaN(v) ? '—' : (v * 100).toFixed(1) + '%';
+}
+
+function safe(val, fallback = '—') {
+  if (val === null || val === undefined || val === '') return fallback;
+  return val;
+}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+function toast(msg, type = 'info', duration = 4000) {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+  toastContainer.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    el.style.transition = 'all .3s ease';
+    setTimeout(() => el.remove(), 320);
+  }, duration);
+}
+
+/* ── Progress ───────────────────────────────────────────────────────────── */
+const STAGES = ['upload', 'ai', 'meta', 'signal', 'fusion', 'report'];
+const STAGE_PCT = { upload: 15, ai: 40, meta: 60, signal: 75, fusion: 88, report: 100 };
+
+function setProgress(pct) {
+  progressBar.style.width = pct + '%';
+  progressPct.textContent = Math.round(pct) + '%';
+  progressBarAria.setAttribute('aria-valuenow', Math.round(pct));
+}
+
+function setStageActive(stageId) {
+  STAGES.forEach(s => {
+    const el = $(`stage-${s}`);
+    el.classList.remove('active', 'done');
+  });
+  let reached = false;
+  STAGES.forEach(s => {
+    const el = $(`stage-${s}`);
+    if (s === stageId) { el.classList.add('active'); reached = true; return; }
+    if (!reached) el.classList.add('done');
+  });
+  setProgress(STAGE_PCT[stageId] || 0);
+}
+
+function allStagesDone() {
+  STAGES.forEach(s => {
+    const el = $(`stage-${s}`);
+    el.classList.remove('active');
+    el.classList.add('done');
+  });
+  setProgress(100);
+}
+
+/* ── Risk helpers ───────────────────────────────────────────────────────── */
+function riskClass(level) {
+  const l = (level || '').toLowerCase();
+  if (l === 'high')   return 'high';
+  if (l === 'low')    return 'low';
+  return 'medium';
+}
+
+function riskShield(level) {
+  const l = (level || '').toLowerCase();
+  if (l === 'high')   return '🚨';
+  if (l === 'low')    return '✅';
+  return '⚠️';
+}
+
+function riskColor(level) {
+  const l = (level || '').toLowerCase();
+  if (l === 'high')   return 'var(--high)';
+  if (l === 'low')    return 'var(--low)';
+  return 'var(--medium)';
+}
+
+function labelClass(label) {
+  const l = (label || '').toLowerCase();
+  if (l === 'spoof')    return 'spoof';
+  if (l === 'bonafide') return 'bonafide';
+  return 'unknown';
+}
+
+/* ── File selection ─────────────────────────────────────────────────────── */
+function handleFile(f) {
+  if (!f) return;
+  state.file = f;
+  state.fileId = null;
+  state.originalName = f.name;
+  fiName.textContent = f.name;
+  fiSize.textContent = fmt(f.size);
+  fileInfoBar.classList.remove('hidden');
+  btnAnalyze.disabled = false;
+  resultsSection.classList.add('hidden');
+  progressSection.classList.add('hidden');
+}
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
+});
+
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) { handleFile(f); fileInput.files = e.dataTransfer.files; }
+});
+dropZone.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+});
+
+fiClear.addEventListener('click', () => {
+  state.file = null;
+  state.fileId = null;
+  fileInput.value = '';
+  fileInfoBar.classList.add('hidden');
+  btnAnalyze.disabled = true;
+  resultsSection.classList.add('hidden');
+  progressSection.classList.add('hidden');
+  resetStages();
+});
+
+function resetStages() {
+  STAGES.forEach(s => {
+    const el = $(`stage-${s}`);
+    el.classList.remove('active', 'done');
+  });
+  setProgress(0);
+}
+
+/* ── Analyze ────────────────────────────────────────────────────────────── */
+btnAnalyze.addEventListener('click', startAnalysis);
+
+async function startAnalysis() {
+  if (!state.file) { toast('Please select an audio file first.', 'warning'); return; }
+
+  btnAnalyze.disabled = true;
+  btnAnalyzeText.textContent = 'ANALYSING…';
+  resultsSection.classList.add('hidden');
+  progressSection.classList.remove('hidden');
+  resetStages();
+
+  /* Step 1 – Upload */
+  setStageActive('upload');
+  let fileId;
+  try {
+    const fd = new FormData();
+    fd.append('file', state.file);
+    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Upload failed');
+    }
+    const data = await res.json();
+    fileId = data.file_id;
+    state.fileId = fileId;
+    toast('File uploaded successfully.', 'success', 2500);
+  } catch (err) {
+    toast(`Upload error: ${err.message}`, 'error', 6000);
+    resetAfterError();
+    return;
+  }
+
+  /* Step 2 – AI */
+  setStageActive('ai');
+  await sleep(300);
+
+  /* Step 3 – Analyze (covers meta + signal + fusion + report) */
+  setStageActive('meta');
+  let result;
+  try {
+    const res = await fetch(`/api/analyze/${fileId}`, { method: 'POST' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Analysis failed');
+    }
+    result = await res.json();
+    state.analysisResult = result;
+  } catch (err) {
+    toast(`Analysis error: ${err.message}`, 'error', 8000);
+    resetAfterError();
+    return;
+  }
+
+  setStageActive('signal');
+  await sleep(200);
+  setStageActive('fusion');
+  await sleep(200);
+  setStageActive('report');
+  await sleep(400);
+  allStagesDone();
+  await sleep(300);
+
+  /* Render results */
+  renderResults(result);
+  progressSection.classList.add('hidden');
+  resultsSection.classList.remove('hidden');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  toast('Analysis complete!', 'success');
+  btnAnalyze.disabled = false;
+  btnAnalyzeText.textContent = 'ANALYZE AUDIO';
+}
+
+function resetAfterError() {
+  btnAnalyze.disabled = false;
+  btnAnalyzeText.textContent = 'ANALYZE AUDIO';
+  progressSection.classList.add('hidden');
+  resetStages();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ── Render Results ─────────────────────────────────────────────────────── */
+function renderResults(data) {
+  const ai       = data.ai_results       || {};
+  const meta     = data.metadata_results || {};
+  const signal   = data.signal_results   || {};
+  const fusion   = data.fusion_results   || {};
+
+  renderFileInfo(data, ai, meta, signal);
+  renderRiskBanner(fusion, ai);
+  renderAITable(ai);
+  renderMetadata(meta, fusion);
+  renderSignal(signal, fusion);
+  renderFusion(fusion);
+  renderPlots();
+}
+
+/* File info */
+function renderFileInfo(data, ai, meta) {
+  const grid = $('file-info-grid');
+  const metadata = meta.metadata || {};
+  const items = [
+    { label: 'File Name',   value: safe(state.originalName) },
+    { label: 'File ID',     value: safe(state.fileId ? state.fileId.slice(0,8) + '…' : null) },
+    { label: 'Duration',    value: safe(metadata.duration ? parseFloat(metadata.duration).toFixed(2) + ' s' : null) },
+    { label: 'Sample Rate', value: safe(metadata.sample_rate ? metadata.sample_rate + ' Hz' : null) },
+    { label: 'Channels',    value: safe(metadata.channels) },
+    { label: 'Bit Depth',   value: safe(metadata.bit_depth) },
+    { label: 'Format',      value: safe(metadata.format || metadata.codec) },
+    { label: 'Device',      value: safe(ai.device) },
+  ].filter(i => i.value !== '—');
+
+  grid.innerHTML = items.map(i => `
+    <div class="info-item">
+      <div class="info-label">${i.label}</div>
+      <div class="info-value">${i.value}</div>
+    </div>`).join('');
+}
+
+/* Risk banner */
+function renderRiskBanner(fusion, ai) {
+  const fusionCore = fusion.fusion || {};
+  const level      = riskClass(fusionCore.risk_level || ai.ai_risk || 'medium');
+  const assessment = fusionCore.assessment || '—';
+  const consensus  = (ai.consensus || {});
+  const confidence = parseFloat(consensus.confidence || 0);
+
+  const banner   = $('risk-banner');
+  banner.className = `risk-banner ${level}`;
+
+  $('risk-shield').textContent  = riskShield(level);
+  $('risk-label').textContent   = level.toUpperCase() + ' RISK';
+  $('risk-assessment-text').textContent = formatAssessment(assessment);
+  $('risk-assessment-badge').textContent = formatAssessment(assessment);
+  $('conf-bar').style.width     = (confidence * 100).toFixed(1) + '%';
+  $('conf-label').textContent   = `Confidence: ${round2(confidence)} · Agreement: ${round2(consensus.agreement)}`;
+}
+
+function formatAssessment(s) {
+  if (!s || s === '—') return '—';
+  return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/* AI Table */
+function renderAITable(ai) {
+  const tbody = $('ai-table-body');
+  const models = [
+    { key: 'cnn',    name: 'CNN',    badge: 'badge-cnn'    },
+    { key: 'svm',    name: 'SVM',    badge: 'badge-svm'    },
+    { key: 'aasist', name: 'AASIST', badge: 'badge-aasist' },
+  ];
+
+  let rows = models.map(m => {
+    const d = ai[m.key] || {};
+    const lc = labelClass(d.label);
+    const prob = parseFloat(d.probability);
+    const probPct = isNaN(prob) ? 0 : prob * 100;
+    const probColor = probPct > 50 ? 'var(--high)' : 'var(--low)';
+    return `
+      <tr>
+        <td><span class="model-name">
+          <span class="model-badge ${m.badge}">${m.name}</span>
+        </span></td>
+        <td><span class="label-pill ${lc}">${cap(d.label) || '—'}</span></td>
+        <td>${d.error ? '<span style="color:var(--text-muted);font-size:.78rem;">error</span>' : round2(d.confidence)}</td>
+        <td>
+          <div class="prob-bar-wrap">
+            <div class="prob-bar-bg">
+              <div class="prob-bar-inner" style="width:${probPct.toFixed(1)}%;background:${probColor}"></div>
+            </div>
+            <span class="prob-val">${isNaN(prob) ? '—' : probPct.toFixed(1) + '%'}</span>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  /* Consensus row */
+  const con = ai.consensus || {};
+  const clc = labelClass(con.label);
+  const conProb = parseFloat(con.confidence);
+  rows += `
+    <tr class="consensus-row">
+      <td><span class="model-name">
+        <span class="model-badge badge-ensemble">Ensemble</span> Consensus
+      </span></td>
+      <td><span class="label-pill ${clc}">${cap(con.label) || '—'}</span></td>
+      <td>${round2(con.confidence)}</td>
+      <td><span style="color:var(--text-muted);font-size:.78rem;">Agreement: ${round2(con.agreement)}</span></td>
+    </tr>`;
+
+  tbody.innerHTML = rows;
+}
+
+/* Metadata */
+function renderMetadata(meta, fusion) {
+  const mEvid  = (fusion.metadata_evidence) || {};
+  const risk   = riskClass(mEvid.risk_score || 'medium');
+  const badge  = $('metadata-risk-badge');
+  badge.className = `risk-badge ${risk}`;
+  badge.textContent = cap(mEvid.risk_score || 'medium') + ' Risk';
+
+  const findings = mEvid.findings || [];
+  const summary  = mEvid.summary  || '';
+  const container = $('metadata-findings');
+
+  let html = '';
+  if (summary) {
+    html += `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem;">${summary}</p>`;
+  }
+  if (findings.length > 0) {
+    html += `<ul class="finding-list">` +
+      findings.map(f => `<li><span class="fi-bullet" aria-hidden="true">▸</span>${f}</li>`).join('') +
+      `</ul>`;
+  } else {
+    html += `<p style="font-size:.83rem;color:var(--text-muted);">No significant metadata anomalies detected.</p>`;
+  }
+
+  /* Flat metadata key-value table if available */
+  const rawMeta = meta.metadata || {};
+  const metaKeys = Object.keys(rawMeta).filter(k => rawMeta[k] !== null && rawMeta[k] !== undefined && rawMeta[k] !== '');
+  if (metaKeys.length > 0) {
+    html += `<div style="margin-top:1rem;overflow-x:auto;">
+      <table class="model-table" style="font-size:.8rem;" aria-label="Audio metadata">
+        <thead><tr><th>Field</th><th>Value</th></tr></thead>
+        <tbody>` +
+      metaKeys.slice(0, 16).map(k =>
+        `<tr><td style="color:var(--text-muted)">${k}</td><td>${String(rawMeta[k]).slice(0, 80)}</td></tr>`
+      ).join('') +
+      `</tbody></table></div>`;
+  }
+  container.innerHTML = html;
+}
+
+/* Signal */
+function renderSignal(signal, fusion) {
+  const sEvid   = (fusion.signal_evidence) || {};
+  const risk    = riskClass(sEvid.signal_risk || signal.risk_level || 'medium');
+  const badge   = $('signal-risk-badge');
+  badge.className = `risk-badge ${risk}`;
+  badge.textContent = cap(sEvid.signal_risk || signal.risk_level || 'medium') + ' Risk';
+
+  const anomalies = sEvid.anomalies || signal.anomalies || [];
+  const summary   = sEvid.summary   || signal.summary   || '';
+  const container = $('signal-findings');
+
+  let html = '';
+  if (summary) {
+    html += `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem;">${summary}</p>`;
+  }
+  if (anomalies.length > 0) {
+    html += `<ul class="finding-list">` +
+      anomalies.map(a => `<li><span class="fi-bullet" aria-hidden="true">▸</span>${a}</li>`).join('') +
+      `</ul>`;
+  } else {
+    html += `<p style="font-size:.83rem;color:var(--text-muted);">No significant signal anomalies detected.</p>`;
+  }
+  container.innerHTML = html;
+}
+
+/* Fusion */
+function renderFusion(fusion) {
+  const aiEvid   = fusion.ai_evidence       || {};
+  const metaEvid = fusion.metadata_evidence || {};
+  const sigEvid  = fusion.signal_evidence   || {};
+  const core     = fusion.fusion            || {};
+
+  const sources = [
+    { name: 'AI Models',  risk: aiEvid.ai_risk        || 'medium' },
+    { name: 'Metadata',   risk: metaEvid.risk_score   || 'medium' },
+    { name: 'Signal',     risk: sigEvid.signal_risk   || 'medium' },
+    { name: 'Overall',    risk: core.risk_level       || 'medium' },
+  ];
+
+  $('fusion-sources').innerHTML = sources.map(s => {
+    const rc = riskClass(s.risk);
+    return `
+      <div class="source-item">
+        <div class="source-name">${s.name}</div>
+        <span class="risk-badge ${rc}">${riskShield(s.risk)} ${cap(s.risk)}</span>
+      </div>`;
+  }).join('');
+
+  /* Evidence summary bullets */
+  const summary = core.evidence_summary || [];
+  const esDiv = $('evidence-summary');
+  esDiv.innerHTML = summary.length
+    ? summary.map(l => `<div class="ev-line">${l}</div>`).join('')
+    : '';
+
+  /* Recommendation */
+  $('recommendation').textContent = core.recommendation || fusion.recommendation || '—';
+}
+
+/* Plots */
+function renderPlots() {
+  const plots = [
+    { file: 'waveform.png',     title: '🌊 Waveform'       },
+    { file: 'spectrogram.png',  title: '🎨 Spectrogram'    },
+    { file: 'mfcc.png',         title: '📈 MFCC Features'  },
+    { file: 'pitch_contour.png',title: '🎵 Pitch Contour'  },
+  ];
+
+  $('plots-grid').innerHTML = plots.map(p => {
+    const src = `/results/signal_plots/${p.file}?t=${Date.now()}`;
+    return `
+      <div class="plot-card">
+        <div class="plot-title">${p.title}</div>
+        <div class="plot-img-wrap">
+          <img
+            src="${src}"
+            alt="${p.title} visualization"
+            loading="lazy"
+            onerror="this.parentElement.innerHTML='<div class=\\'plot-placeholder\\'>Plot not available</div>'"
+          />
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Download Report ────────────────────────────────────────────────────── */
+btnDownload.addEventListener('click', async () => {
+  if (!state.fileId) { toast('No analysis to download.', 'warning'); return; }
+  const result = state.analysisResult;
+  if (result && !result.report_available) {
+    toast('PDF report was not generated for this file.', 'warning'); return;
+  }
+  try {
+    const res = await fetch(`/api/report/${state.fileId}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Download failed');
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `audioshield_report_${state.fileId.slice(0,8)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Report downloaded.', 'success');
+  } catch (err) {
+    toast(`Download error: ${err.message}`, 'error');
+  }
+});
+
+/* ── Analyze Another ────────────────────────────────────────────────────── */
+btnNew.addEventListener('click', () => {
+  state.file = null;
+  state.fileId = null;
+  state.originalName = null;
+  state.analysisResult = null;
+  fileInput.value = '';
+  fileInfoBar.classList.add('hidden');
+  btnAnalyze.disabled = true;
+  btnAnalyzeText.textContent = 'ANALYZE AUDIO';
+  resultsSection.classList.add('hidden');
+  progressSection.classList.add('hidden');
+  resetStages();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ── Health check on load ────────────────────────────────────────────────── */
+(async () => {
+  try {
+    const res = await fetch('/api/health');
+    if (!res.ok) throw new Error('Unhealthy');
+    const dot = document.querySelector('.dot');
+    const statusText = document.querySelector('.status-dot span');
+    if (dot) { dot.style.background = 'var(--low)'; dot.style.boxShadow = '0 0 6px var(--low)'; }
+    if (statusText) statusText.textContent = 'System Online';
+  } catch {
+    const dot = document.querySelector('.dot');
+    const statusText = document.querySelector('.status-dot span');
+    if (dot) { dot.style.background = 'var(--high)'; dot.style.boxShadow = '0 0 6px var(--high)'; }
+    if (statusText) statusText.textContent = 'System Offline';
+    toast('Cannot reach the API server.', 'error', 8000);
+  }
+})();
+</script>
+</body>
+</html>
