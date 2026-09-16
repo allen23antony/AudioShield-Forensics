@@ -1,18 +1,18 @@
 {
   "metadata": {
-    "file_name": "3534d565-6753-4873-848a-ccb1615eb148.mp3",
-    "file_size": "10417214",
+    "file_name": "884d061a-8db5-473b-9e85-a89fd71b2682.mp3",
+    "file_size": "103070",
     "format": "mp3",
-    "duration": "325.537938",
+    "duration": "6.391293",
     "codec": "mp3",
     "sample_rate": "44100",
     "channels": 2,
-    "bitrate": "255999",
-    "encoder": null,
-    "creation_time": "2026:09:14 13:44:31+05:30",
-    "modification_time": "2026:09:14 13:44:31+05:30",
+    "bitrate": "129013",
+    "encoder": "Lavf57.83.100",
+    "creation_time": "2026:09:16 23:25:05+05:30",
+    "modification_time": "2026:09:16 23:25:05+05:30",
     "device_info": null,
-    "software": null,
+    "software": "Lavf57.83.100",
     "comments": null,
     "raw_ffprobe": {
       "streams": [
@@ -33,11 +33,11 @@
           "r_frame_rate": "0/0",
           "avg_frame_rate": "0/0",
           "time_base": "1/14112000",
-          "start_pts": 0,
-          "start_time": "0.000000",
-          "duration_ts": 4593991374,
-          "duration": "325.537937",
-          "bit_rate": "256000",
+          "start_pts": 353600,
+          "start_time": "0.025057",
+          "duration_ts": 90193920,
+          "duration": "6.391293",
+          "bit_rate": "128000",
           "disposition": {
             "default": 0,
             "dub": 0,
@@ -58,63 +58,71 @@
             "dependent": 0,
             "still_image": 0,
             "multilayer": 0
+          },
+          "tags": {
+            "encoder": "Lavc57.10"
           }
         }
       ],
       "format": {
-        "filename": "C:\\Users\\allen\\AudioShield-Forensics\\uploads\\3534d565-6753-4873-848a-ccb1615eb148.mp3",
+        "filename": "C:\\Users\\allen\\AudioShield-Forensics\\uploads\\884d061a-8db5-473b-9e85-a89fd71b2682.mp3",
         "nb_streams": 1,
         "nb_programs": 0,
         "nb_stream_groups": 0,
         "format_name": "mp3",
         "format_long_name": "MP2/3 (MPEG audio layer 2/3)",
-        "start_time": "0.000000",
-        "duration": "325.537938",
-        "size": "10417214",
-        "bit_rate": "255999",
-        "probe_score": 52
+        "start_time": "0.025057",
+        "duration": "6.391293",
+        "size": "103070",
+        "bit_rate": "129013",
+        "probe_score": 52,
+        "tags": {
+          "encoder": "Lavf57.83.100"
+        }
       }
     },
     "raw_exiftool": {
-      "SourceFile": "C:/Users/allen/AudioShield-Forensics/uploads/3534d565-6753-4873-848a-ccb1615eb148.mp3",
+      "SourceFile": "C:/Users/allen/AudioShield-Forensics/uploads/884d061a-8db5-473b-9e85-a89fd71b2682.mp3",
       "ExifToolVersion": 13.59,
-      "FileName": "3534d565-6753-4873-848a-ccb1615eb148.mp3",
+      "FileName": "884d061a-8db5-473b-9e85-a89fd71b2682.mp3",
       "Directory": "C:/Users/allen/AudioShield-Forensics/uploads",
-      "FileSize": "10 MB",
-      "FileModifyDate": "2026:09:14 13:44:31+05:30",
-      "FileAccessDate": "2026:09:14 13:44:34+05:30",
-      "FileCreateDate": "2026:09:14 13:44:31+05:30",
+      "FileSize": "103 kB",
+      "FileModifyDate": "2026:09:16 23:25:05+05:30",
+      "FileAccessDate": "2026:09:16 23:25:09+05:30",
+      "FileCreateDate": "2026:09:16 23:25:05+05:30",
       "FilePermissions": "-rw-rw-rw-",
       "FileType": "MP3",
       "FileTypeExtension": "mp3",
       "MIMEType": "audio/mpeg",
       "MPEGAudioVersion": 1,
       "AudioLayer": 3,
-      "AudioBitrate": "256 kbps",
+      "AudioBitrate": "64 kbps",
       "SampleRate": 44100,
-      "ChannelMode": "Joint Stereo",
-      "MSStereo": "On",
+      "ChannelMode": "Stereo",
+      "MSStereo": "Off",
       "IntensityStereo": "Off",
-      "CopyrightFlag": true,
-      "OriginalMedia": true,
+      "CopyrightFlag": false,
+      "OriginalMedia": false,
       "Emphasis": "None",
-      "Duration": "0:05:26 (approx)"
+      "ID3Size": 45,
+      "EncoderSettings": "Lavf57.83.100",
+      "Duration": "12.88 s (approx)"
     }
   },
   "summary": {
-    "file_name": "3534d565-6753-4873-848a-ccb1615eb148.mp3",
-    "file_size": "10417214",
+    "file_name": "884d061a-8db5-473b-9e85-a89fd71b2682.mp3",
+    "file_size": "103070",
     "format": "mp3",
-    "duration": "325.537938",
+    "duration": "6.391293",
     "codec": "mp3",
     "sample_rate": "44100",
     "channels": 2,
-    "bitrate": "255999",
-    "encoder": null,
-    "creation_time": "2026:09:14 13:44:31+05:30",
-    "modification_time": "2026:09:14 13:44:31+05:30",
+    "bitrate": "129013",
+    "encoder": "Lavf57.83.100",
+    "creation_time": "2026:09:16 23:25:05+05:30",
+    "modification_time": "2026:09:16 23:25:05+05:30",
     "device_info": null,
-    "software": null,
+    "software": "Lavf57.83.100",
     "comments": null
   },
   "analysis": {
@@ -124,20 +132,12 @@
         "has_issue": true,
         "severity": "low",
         "description": "Device information is missing; provenance cannot be verified from metadata alone."
-      },
-      {
-        "field": "encoder",
-        "has_issue": true,
-        "severity": "low",
-        "description": "Encoder or software information is missing."
       }
     ],
     "risk_score": "low",
     "suspicious_fields": [],
     "missing_fields": [
       "device_info",
-      "encoder",
-      "software",
       "comments"
     ]
   }

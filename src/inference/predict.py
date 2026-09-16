@@ -20,7 +20,8 @@ CNN_PATH = PROJECT_ROOT / "models" / "cnn" / "cnn_final_best.pth"
 CNN_NORM_PATH = PROJECT_ROOT / "results" / "cnn_final_norm.json"
 SVM_PATH = PROJECT_ROOT / "models" / "svm" / "svm_model.pkl"
 SVM_SCALER_PATH = PROJECT_ROOT / "models" / "svm" / "scaler.pkl"
-AASIST_PATH = PROJECT_ROOT / "models" / "aasist" / "aasist_best.pth"
+AASIST_PATH = PROJECT_ROOT / "models" / "aasist" / "aasist_balanced_best.pth"
+AASIST_THRESHOLD_PATH = PROJECT_ROOT / "results" / "aasist" / "aasist_balanced_threshold.json"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -122,7 +123,16 @@ def predict_aasist(audio_path: Path) -> Dict[str, Any]:
     tensor = torch.from_numpy(audio).float().unsqueeze(0).to(DEVICE)
     with torch.inference_mode():
         probability = float(torch.sigmoid(model(tensor).reshape(-1)[0]).item())
-    return _result(_label_from_probability(probability), probability)
+
+    # Load EER-calibrated threshold derived from the dev set (never from eval).
+    threshold = 0.5
+    if AASIST_THRESHOLD_PATH.is_file():
+        with AASIST_THRESHOLD_PATH.open("r", encoding="utf-8") as fh:
+            threshold = float(json.load(fh).get("threshold", 0.5))
+
+    label = "spoof" if probability > threshold else "bonafide"
+    confidence = probability if label == "spoof" else 1.0 - probability
+    return {"label": label, "confidence": confidence, "probability": probability}
 
 
 def _failed_result(exc: Exception) -> Dict[str, Any]:

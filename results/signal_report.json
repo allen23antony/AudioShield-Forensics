@@ -1,54 +1,54 @@
 {
   "spectral_features": {
     "spectral_centroid": {
-      "mean": 1873.8022811802657,
-      "std": 654.0664812102931,
-      "min": 0.0,
-      "max": 3369.1925826301203
+      "mean": 1714.9495051387166,
+      "std": 339.53180723169515,
+      "min": 1109.788184629998,
+      "max": 2331.8430451591885
     },
     "spectral_bandwidth": {
-      "mean": 1740.0574714779364,
-      "std": 553.3177117601309,
-      "min": 0.0,
-      "max": 2479.9034507143583
+      "mean": 1882.2428895046417,
+      "std": 167.99507411765657,
+      "min": 1490.601348155279,
+      "max": 2307.922093088411
     },
     "spectral_rolloff": {
-      "mean": 3996.3674363057326,
-      "std": 1341.118625722523,
-      "min": 0.0,
-      "max": 5867.1875
+      "mean": 3660.1313694267515,
+      "std": 558.547814191135,
+      "min": 2359.375,
+      "max": 5265.625
     },
     "spectral_flatness": {
-      "mean": 0.0851525545347694,
-      "std": 0.2641179062152477,
-      "min": 0.00013625748397316784,
-      "max": 1.0000007152557373
+      "mean": 0.009546121773695584,
+      "std": 0.010801809044550406,
+      "min": 0.000630763650406152,
+      "max": 0.06809169799089432
     },
     "spectral_contrast": {
-      "mean": 28.89167329882085,
-      "std": 6.318338549561572,
-      "min": 14.602932618194638,
-      "max": 38.909059045828386
+      "mean": 25.83047356001864,
+      "std": 5.005134634916103,
+      "min": 17.908159819806777,
+      "max": 37.52062725526791
     }
   },
   "temporal_features": {
     "zero_crossing_rate": {
-      "mean": 0.15166886445063693,
-      "std": 0.06309239550361655,
-      "min": 0.0,
-      "max": 0.2724609375
+      "mean": 0.11831334593949044,
+      "std": 0.0495885767017789,
+      "min": 0.03857421875,
+      "max": 0.21337890625
     },
     "rms_energy": {
-      "mean": 0.14173886834528826,
-      "std": 0.06199906811914533,
-      "min": 0.0,
-      "max": 0.27541640400886536
+      "mean": 0.07833978899155453,
+      "std": 0.04176374168504122,
+      "min": 0.02412654086947441,
+      "max": 0.17328576743602753
     },
     "pitch": {
-      "mean": 148.34764121216477,
-      "std": 48.45034515667105,
+      "mean": 76.32756385103076,
+      "std": 23.046867607929887,
       "min": 65.40639132514966,
-      "max": 195.99771799087463
+      "max": 130.8127826502993
     }
   },
   "anomalies": {
@@ -57,21 +57,17 @@
     "summary": "No broad signal-level anomalies identified."
   },
   "temporal_analysis": {
-    "consistency_score": 0.9912280701754386,
-    "anomalies": [
-      "1 unusually large pitch jump(s) detected."
-    ],
-    "summary": "Temporal indicators require further investigation.",
+    "consistency_score": 1.0,
+    "anomalies": [],
+    "summary": "Temporal patterns are broadly consistent.",
     "pitch_analysis": {
-      "stability_score": 0.9912280701754386,
-      "anomalies": [
-        "1 unusually large pitch jump(s) detected."
-      ],
-      "description": "Pitch contour contains abrupt changes; requires further investigation."
+      "stability_score": 1.0,
+      "anomalies": [],
+      "description": "Pitch contour is broadly continuous."
     },
     "energy_analysis": {
-      "energy_mean": 0.1417388617992401,
-      "energy_std": 0.06199906766414642,
+      "energy_mean": 0.07833979278802872,
+      "energy_std": 0.04176373779773712,
       "anomalies": []
     }
   },
@@ -81,6 +77,6 @@
     "results\\signal_plots\\mfcc.png",
     "results\\signal_plots\\pitch_contour.png"
   ],
-  "signal_risk": "medium",
-  "summary": "Signal risk is medium. No broad signal-level anomalies identified."
+  "signal_risk": "low",
+  "summary": "Signal risk is low. No broad signal-level anomalies identified."
 }
