@@ -1,15 +1,15 @@
 AudioShield Evidence Fusion Report
 ====================================
-Overall risk: medium
-Assessment: inconclusive
-Evidence confidence: 0.98
+Overall risk: low
+Assessment: likely_authentic
+Evidence confidence: 0.76
 
 Evidence summary:
-- AI consensus: spoof (risk: high).
-- Metadata risk: low; 1 finding(s).
+- AI consensus: bonafide (risk: low).
+- Metadata risk: low; 2 finding(s).
 - Signal risk: low; 0 anomaly/anomalies.
 
-Reasoning: Source risks are AI=high, metadata=low, signal=low; applied documented rule-based logic.
-Recommendation: Evidence is mixed or incomplete; requires further investigation.
+Reasoning: Source risks are AI=low, metadata=low, signal=low; applied documented rule-based logic.
+Recommendation: Likely authentic based on the available indicators, subject to further verification.
 
 This report summarizes indicators from independent sources; it does not establish authenticity by itself.

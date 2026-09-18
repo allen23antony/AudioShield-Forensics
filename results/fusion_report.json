@@ -1,20 +1,20 @@
 {
   "ai_evidence": {
     "cnn": {
-      "label": "spoof",
-      "confidence": 1.0
+      "label": "bonafide",
+      "confidence": 0.9999999999990312
     },
     "svm": {
       "label": "spoof",
-      "confidence": 0.9962259736519202
+      "confidence": 0.999999264908558
     },
     "aasist": {
-      "label": "spoof",
-      "confidence": 0.9514581561088562
+      "label": "bonafide",
+      "confidence": 0.28075242042541504
     },
-    "consensus": "spoof",
-    "ai_risk": "high",
-    "details": "3 AI model result(s); 3 support the spoof consensus.",
+    "consensus": "bonafide",
+    "ai_risk": "low",
+    "details": "3 AI model result(s); 2 support the bonafide consensus.",
     "source_error": null
   },
   "metadata_evidence": {
@@ -25,6 +25,12 @@
         "has_issue": true,
         "severity": "low",
         "description": "Device information is missing; provenance cannot be verified from metadata alone."
+      },
+      {
+        "field": "encoder",
+        "has_issue": true,
+        "severity": "low",
+        "description": "Encoder or software information is missing."
       }
     ],
     "summary": "Metadata risk is low."
@@ -35,15 +41,15 @@
     "summary": "Signal risk is low. No broad signal-level anomalies identified."
   },
   "fusion": {
-    "overall_risk": "medium",
-    "assessment": "inconclusive",
-    "confidence": 0.9825613765869256,
-    "reasoning": "Source risks are AI=high, metadata=low, signal=low; applied documented rule-based logic.",
+    "overall_risk": "low",
+    "assessment": "likely_authentic",
+    "confidence": 0.760250561777668,
+    "reasoning": "Source risks are AI=low, metadata=low, signal=low; applied documented rule-based logic.",
     "evidence_summary": [
-      "AI consensus: spoof (risk: high).",
-      "Metadata risk: low; 1 finding(s).",
+      "AI consensus: bonafide (risk: low).",
+      "Metadata risk: low; 2 finding(s).",
       "Signal risk: low; 0 anomaly/anomalies."
     ],
-    "recommendation": "Evidence is mixed or incomplete; requires further investigation."
+    "recommendation": "Likely authentic based on the available indicators, subject to further verification."
   }
 }
