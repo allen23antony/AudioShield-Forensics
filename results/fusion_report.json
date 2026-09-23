@@ -2,19 +2,19 @@
   "ai_evidence": {
     "cnn": {
       "label": "bonafide",
-      "confidence": 0.9999999999990312
+      "confidence": 1.0
     },
     "svm": {
-      "label": "spoof",
-      "confidence": 0.999999264908558
+      "label": "bonafide",
+      "confidence": 0.9643193675331941
     },
     "aasist": {
       "label": "bonafide",
-      "confidence": 0.28075242042541504
+      "confidence": 0.9502904862165451
     },
     "consensus": "bonafide",
     "ai_risk": "low",
-    "details": "3 AI model result(s); 2 support the bonafide consensus.",
+    "details": "3 AI model result(s); 3 support the bonafide consensus.",
     "source_error": null
   },
   "metadata_evidence": {
@@ -43,7 +43,7 @@
   "fusion": {
     "overall_risk": "low",
     "assessment": "likely_authentic",
-    "confidence": 0.760250561777668,
+    "confidence": 0.9715366179165797,
     "reasoning": "Source risks are AI=low, metadata=low, signal=low; applied documented rule-based logic.",
     "evidence_summary": [
       "AI consensus: bonafide (risk: low).",

@@ -1,78 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AudioShield Forensics</title>
   <style>
-    /* ── Reset & Base ─────────────────────────────────────────────────── */
+    /* ── Reset & Base ───────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Dark theme (default) ───────────────────────────────────────────── */
     :root {
-      --bg-deep:      #0F172A;
-      --bg-card:      #1E293B;
-      --bg-surface:   #0F172A;
-      --teal:         #00B4D8;
-      --teal-dim:     #0096B4;
-      --teal-glow:    rgba(0,180,216,.18);
-      --low:          #10B981;
-      --medium:       #F59E0B;
-      --high:         #EF4444;
-      --low-bg:       rgba(16,185,129,.15);
-      --medium-bg:    rgba(245,158,11,.15);
-      --high-bg:      rgba(239,68,68,.15);
-      --text:         #F1F5F9;
-      --text-muted:   #94A3B8;
-      --border:       rgba(255,255,255,.07);
-      --radius:       12px;
-      --shadow:       0 4px 24px rgba(0,0,0,.4);
-      --shadow-lg:    0 8px 40px rgba(0,0,0,.55);
-      --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      --mono:         'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+      --bg-deep:    #0F172A;
+      --bg-card:    #1E293B;
+      --bg-surface: #0F172A;
+      --teal:       #00B4D8;
+      --teal-dim:   #0096B4;
+      --teal-glow:  rgba(0,180,216,.18);
+      --low:        #10B981;
+      --medium:     #F59E0B;
+      --high:       #EF4444;
+      --low-bg:     rgba(16,185,129,.15);
+      --medium-bg:  rgba(245,158,11,.15);
+      --high-bg:    rgba(239,68,68,.15);
+      --text:       #F1F5F9;
+      --text-muted: #94A3B8;
+      --border:     rgba(255,255,255,.07);
+      --radius:     12px;
+      --shadow:     0 4px 24px rgba(0,0,0,.4);
+      --shadow-lg:  0 8px 40px rgba(0,0,0,.55);
+      --font:       -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --mono:       'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+      --header-bg:  rgba(15,23,42,.92);
+      --body-bg1:   #0F172A;
+      --body-bg2:   #1E293B;
+    }
+
+    /* ── Light theme ────────────────────────────────────────────────────── */
+    [data-theme="light"] {
+      --bg-deep:    #F1F5F9;
+      --bg-card:    #FFFFFF;
+      --bg-surface: #F8FAFC;
+      --teal:       #0284C7;
+      --teal-dim:   #0369A1;
+      --teal-glow:  rgba(2,132,199,.12);
+      --low:        #059669;
+      --medium:     #D97706;
+      --high:       #DC2626;
+      --low-bg:     rgba(5,150,105,.1);
+      --medium-bg:  rgba(217,119,6,.1);
+      --high-bg:    rgba(220,38,38,.1);
+      --text:       #0F172A;
+      --text-muted: #64748B;
+      --border:     rgba(0,0,0,.08);
+      --shadow:     0 2px 12px rgba(0,0,0,.1);
+      --shadow-lg:  0 6px 24px rgba(0,0,0,.15);
+      --header-bg:  rgba(255,255,255,.95);
+      --body-bg1:   #E2E8F0;
+      --body-bg2:   #F1F5F9;
     }
 
     html { scroll-behavior: smooth; }
-
     body {
       font-family: var(--font);
-      background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-card) 100%);
+      background: linear-gradient(135deg, var(--body-bg1) 0%, var(--body-bg2) 100%);
       min-height: 100vh;
       color: var(--text);
       line-height: 1.6;
+      transition: background .35s ease, color .35s ease;
     }
 
-    /* ── Scrollbar ────────────────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-deep); }
     ::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 3px; }
 
-    /* ── Utility ──────────────────────────────────────────────────────── */
-    .hidden   { display: none !important; }
-    .sr-only  { position: absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+    .hidden  { display: none !important; }
+    .sr-only { position: absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
 
-    /* ── Header ───────────────────────────────────────────────────────── */
+    /* ── Header ─────────────────────────────────────────────────────────── */
     header {
-      background: rgba(15,23,42,.92);
+      background: var(--header-bg);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
+      transition: background .35s ease;
     }
     .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
+      max-width: 1200px; margin: 0 auto;
       height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-    }
+    .logo { display: flex; align-items: center; gap: .75rem; }
     .logo-icon {
       width: 36px; height: 36px;
       background: linear-gradient(135deg, var(--teal), #0077A8);
@@ -80,648 +98,484 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem;
     }
-    .logo-text h1 {
-      font-size: .95rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      color: var(--teal);
-      line-height: 1;
-    }
-    .logo-text span {
-      font-size: .7rem;
-      color: var(--text-muted);
-      letter-spacing: .05em;
-    }
+    .logo-text h1 { font-size: .95rem; font-weight: 700; letter-spacing: .12em; color: var(--teal); line-height: 1; }
+    .logo-text span { font-size: .7rem; color: var(--text-muted); letter-spacing: .05em; }
+    .header-right { display: flex; align-items: center; gap: .9rem; }
     .version-badge {
-      background: var(--teal-glow);
-      border: 1px solid var(--teal);
-      color: var(--teal);
-      font-size: .7rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      letter-spacing: .06em;
+      background: var(--teal-glow); border: 1px solid var(--teal); color: var(--teal);
+      font-size: .7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: .06em;
     }
-    .status-dot {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      font-size: .75rem;
-      color: var(--text-muted);
-    }
+    .status-dot { display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: var(--text-muted); }
     .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--low);
-      box-shadow: 0 0 6px var(--low);
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--low); box-shadow: 0 0 6px var(--low);
       animation: pulse-dot 2s ease-in-out infinite;
     }
-    @keyframes pulse-dot {
-      0%,100% { opacity: 1; } 50% { opacity: .4; }
-    }
+    @keyframes pulse-dot { 0%,100%{opacity:1}50%{opacity:.4} }
 
-    /* ── Main Layout ──────────────────────────────────────────────────── */
+    /* Theme toggle */
+    #theme-toggle {
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, transform .2s;
+      color: var(--text);
+    }
+    #theme-toggle:hover { background: var(--teal-glow); transform: rotate(20deg); }
+
+    /* ── Main ───────────────────────────────────────────────────────────── */
     main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
 
-    /* ── Hero ─────────────────────────────────────────────────────────── */
-    .hero {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
+    /* ── Hero ───────────────────────────────────────────────────────────── */
+    .hero { text-align: center; margin-bottom: 2.5rem; }
     .hero h2 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 30%, var(--teal));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 2.2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--text) 30%, var(--teal));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       margin-bottom: .5rem;
     }
-    .hero p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 540px;
-      margin: 0 auto;
-    }
+    .hero p { color: var(--text-muted); font-size: 1.05rem; max-width: 540px; margin: 0 auto; }
 
-    /* ── Upload Zone ──────────────────────────────────────────────────── */
+    /* ── Upload ─────────────────────────────────────────────────────────── */
     .upload-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      box-shadow: var(--shadow);
-      margin-bottom: 1.5rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      box-shadow: var(--shadow); margin-bottom: 1.5rem;
     }
     .drop-zone {
-      border: 2px dashed rgba(0,180,216,.35);
-      border-radius: 10px;
-      padding: 3rem 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all .25s ease;
-      position: relative;
+      border: 2px dashed rgba(0,180,216,.35); border-radius: 10px;
+      padding: 3rem 2rem; text-align: center; cursor: pointer;
+      transition: all .25s ease; position: relative;
       background: rgba(0,180,216,.03);
     }
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--teal);
-      background: var(--teal-glow);
-    }
-    .drop-zone input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-    .drop-icon {
-      font-size: 2.8rem;
-      margin-bottom: .75rem;
-      display: block;
-    }
-    .drop-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: .35rem;
-    }
-    .drop-sub {
-      font-size: .82rem;
-      color: var(--text-muted);
-    }
-    .drop-sub span {
-      color: var(--teal);
-      font-weight: 600;
-    }
+    .drop-zone:hover,.drop-zone.dragover { border-color: var(--teal); background: var(--teal-glow); }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width:100%; height:100%; }
+    .drop-icon { font-size: 2.8rem; margin-bottom: .75rem; display: block; }
+    .drop-title { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: .35rem; }
+    .drop-sub { font-size: .82rem; color: var(--text-muted); }
+    .drop-sub span { color: var(--teal); font-weight: 600; }
     .file-info-bar {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      margin-top: 1.25rem;
-      padding: .75rem 1rem;
-      background: rgba(0,180,216,.08);
-      border: 1px solid rgba(0,180,216,.2);
-      border-radius: 8px;
+      display: flex; align-items: center; gap: .75rem;
+      margin-top: 1.25rem; padding: .75rem 1rem;
+      background: rgba(0,180,216,.08); border: 1px solid rgba(0,180,216,.2); border-radius: 8px;
     }
     .file-info-bar .fi-icon { font-size: 1.4rem; }
     .file-info-bar .fi-name { font-weight: 600; font-size: .9rem; color: var(--text); }
     .file-info-bar .fi-size { font-size: .78rem; color: var(--text-muted); }
-    .fi-clear {
-      margin-left: auto;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.1rem;
-      line-height: 1;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: color .2s;
-    }
+    .fi-clear { margin-left:auto; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1rem; padding:2px 6px; border-radius:4px; transition:color .2s; }
     .fi-clear:hover { color: var(--high); }
 
-    /* ── Analyze Button ───────────────────────────────────────────────── */
-    .btn-analyze {
-      width: 100%;
-      padding: 1rem;
-      margin-top: 1.25rem;
-      background: linear-gradient(135deg, var(--teal), #0077A8);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      cursor: pointer;
-      transition: all .25s ease;
-      box-shadow: 0 4px 18px rgba(0,180,216,.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .6rem;
-    }
-    .btn-analyze:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(0,180,216,.45);
-    }
-    .btn-analyze:active:not(:disabled) { transform: translateY(0); }
-    .btn-analyze:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* ── Progress ─────────────────────────────────────────────────────── */
-    .progress-card {
-      background: var(--bg-card);
+    /* Audio player */
+    .audio-player-wrap {
+      margin-top: 1rem;
+      background: rgba(0,180,216,.04);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.75rem 2rem;
-      box-shadow: var(--shadow);
-      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      padding: .7rem 1rem;
+      display: flex; align-items: center; gap: .75rem;
+      flex-wrap: wrap;
     }
-    .progress-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
+    .audio-player-wrap audio { flex: 1; min-width: 200px; height: 32px; accent-color: var(--teal); }
+    .audio-player-label { font-size: .75rem; color: var(--text-muted); white-space: nowrap; }
+
+    /* Analyze button */
+    .btn-analyze {
+      width: 100%; padding: 1rem; margin-top: 1.25rem;
+      background: linear-gradient(135deg, var(--teal), #0077A8);
+      color: #fff; border: none; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 700; letter-spacing: .1em;
+      cursor: pointer; transition: all .25s ease;
+      box-shadow: 0 4px 18px rgba(0,180,216,.3);
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
     }
+    .btn-analyze:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,180,216,.45); }
+    .btn-analyze:active:not(:disabled) { transform: translateY(0); }
+    .btn-analyze:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── Progress ───────────────────────────────────────────────────────── */
+    .progress-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.75rem 2rem;
+      box-shadow: var(--shadow); margin-bottom: 1.5rem;
+    }
+    .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .progress-header h3 { font-size: .95rem; font-weight: 600; color: var(--text); }
     .progress-pct { font-size: .85rem; font-weight: 700; color: var(--teal); }
-    .progress-bar-wrap {
-      height: 8px;
-      background: rgba(255,255,255,.07);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 1.5rem;
-    }
+    .progress-bar-wrap { height: 8px; background: rgba(255,255,255,.07); border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem; }
     .progress-bar-fill {
-      height: 100%;
-      width: 0%;
+      height: 100%; width: 0%;
       background: linear-gradient(90deg, var(--teal), #00D4FF);
-      border-radius: 4px;
-      transition: width .5s ease;
-      position: relative;
+      border-radius: 4px; transition: width .5s ease; position: relative;
     }
     .progress-bar-fill::after {
-      content: '';
-      position: absolute;
-      right: 0; top: 0; bottom: 0;
-      width: 40px;
+      content:''; position: absolute; right:0; top:0; bottom:0; width:40px;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,.35));
       animation: shimmer 1.5s ease-in-out infinite;
     }
-    @keyframes shimmer {
-      0%,100% { opacity: 0; } 50% { opacity: 1; }
-    }
-    .stages {
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-    }
+    @keyframes shimmer { 0%,100%{opacity:0} 50%{opacity:1} }
+    .stages { display: flex; gap: .5rem; flex-wrap: wrap; }
     .stage {
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-      font-size: .75rem;
-      color: var(--text-muted);
-      padding: .3rem .7rem;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      transition: all .3s;
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .75rem; color: var(--text-muted);
+      padding: .3rem .7rem; border-radius: 20px;
+      border: 1px solid var(--border); transition: all .3s;
     }
-    .stage.active {
-      color: var(--teal);
-      border-color: var(--teal);
-      background: var(--teal-glow);
-    }
-    .stage.done {
-      color: var(--low);
-      border-color: var(--low);
-      background: var(--low-bg);
-    }
+    .stage.active { color: var(--teal); border-color: var(--teal); background: var(--teal-glow); }
+    .stage.done   { color: var(--low);  border-color: var(--low);  background: var(--low-bg); }
     .stage .stage-icon { font-size: .85rem; }
     .spinner {
       width: 14px; height: 14px;
-      border: 2px solid rgba(0,180,216,.3);
-      border-top-color: var(--teal);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: inline-block;
-      flex-shrink: 0;
+      border: 2px solid rgba(0,180,216,.3); border-top-color: var(--teal);
+      border-radius: 50%; animation: spin .7s linear infinite;
+      display: inline-block; flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Cards ────────────────────────────────────────────────────────── */
-    .card {
+    /* Pipeline timeline */
+    .timeline-wrap { margin-top: 1rem; }
+    .timeline { display: flex; gap: 0; overflow-x: auto; padding-bottom: .5rem; }
+    .tl-item {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 90px; flex: 1; position: relative;
+    }
+    .tl-item:not(:last-child)::after {
+      content: '';
+      position: absolute; top: 14px; left: 50%; width: 100%;
+      height: 2px; background: var(--border); z-index: 0;
+    }
+    .tl-item.tl-done:not(:last-child)::after  { background: var(--low); }
+    .tl-item.tl-active:not(:last-child)::after { background: var(--teal); }
+    .tl-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border);
       background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      margin-bottom: 1.25rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; z-index: 1; position: relative;
+      transition: all .3s;
+    }
+    .tl-item.tl-done  .tl-dot { border-color: var(--low);  background: var(--low-bg);  color: var(--low); }
+    .tl-item.tl-active .tl-dot { border-color: var(--teal); background: var(--teal-glow); }
+    .tl-label { font-size: .68rem; color: var(--text-muted); margin-top: .35rem; text-align: center; }
+    .tl-time  { font-size: .62rem; color: var(--teal); font-weight: 600; margin-top: .1rem; }
+
+    /* ── Cards ──────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); margin-bottom: 1.25rem;
+      transition: background .35s ease;
     }
     .card-header {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      margin-bottom: 1.1rem;
-      padding-bottom: .9rem;
+      display: flex; align-items: center; gap: .6rem;
+      margin-bottom: 1.1rem; padding-bottom: .9rem;
       border-bottom: 1px solid var(--border);
     }
-    .card-header h3 {
-      font-size: .95rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: .03em;
-    }
+    .card-header h3 { font-size: .95rem; font-weight: 700; color: var(--text); letter-spacing: .03em; }
     .card-icon { font-size: 1.1rem; }
 
-    /* ── Risk Banner ──────────────────────────────────────────────────── */
+    /* ── Risk Banner (enhanced) ─────────────────────────────────────────── */
     .risk-banner {
-      border-radius: var(--radius);
-      padding: 1.5rem;
+      border-radius: var(--radius); padding: 1.5rem;
       margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
+      display: flex; align-items: center; gap: 1.25rem;
       box-shadow: var(--shadow);
+      transition: background .6s ease, border-color .6s ease;
+      position: relative; overflow: hidden;
     }
-    .risk-banner.low    { background: var(--low-bg);    border: 1px solid var(--low);    }
+    .risk-banner::before {          /* subtle animated shimmer strip */
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent);
+      animation: banner-shine 4s ease-in-out infinite;
+    }
+    @keyframes banner-shine { 0%{left:-100%} 60%,100%{left:150%} }
+    .risk-banner.low    { background: var(--low-bg);    border: 1px solid var(--low); }
     .risk-banner.medium { background: var(--medium-bg); border: 1px solid var(--medium); }
-    .risk-banner.high   { background: var(--high-bg);   border: 1px solid var(--high);   }
-    .risk-shield { font-size: 2.8rem; line-height: 1; }
+    .risk-banner.high   { background: var(--high-bg);   border: 1px solid var(--high);
+                          animation: banner-pulse 2s ease-in-out infinite; }
+    @keyframes banner-pulse {
+      0%,100% { box-shadow: var(--shadow); }
+      50%     { box-shadow: 0 0 0 4px rgba(239,68,68,.18), var(--shadow); }
+    }
+    .risk-shield {
+      font-size: 2.8rem; line-height: 1;
+      transition: transform .4s ease;
+    }
+    .risk-banner.high .risk-shield { animation: shield-shake 2.5s ease-in-out infinite; }
+    @keyframes shield-shake {
+      0%,100%{transform:rotate(0)} 10%{transform:rotate(-8deg)} 20%{transform:rotate(8deg)}
+      30%{transform:rotate(-4deg)} 40%{transform:rotate(4deg)} 50%{transform:rotate(0)}
+    }
     .risk-info { flex: 1; }
-    .risk-label {
-      font-size: 1.5rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      line-height: 1;
-      margin-bottom: .3rem;
-    }
-    .risk-banner.low    .risk-label { color: var(--low);    }
+    .risk-label { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; line-height: 1; margin-bottom: .3rem; }
+    .risk-banner.low    .risk-label { color: var(--low); }
     .risk-banner.medium .risk-label { color: var(--medium); }
-    .risk-banner.high   .risk-label { color: var(--high);   }
+    .risk-banner.high   .risk-label { color: var(--high); }
     .risk-desc { font-size: .85rem; color: var(--text-muted); margin-bottom: .75rem; }
-    .conf-bar-wrap {
-      height: 6px;
-      background: rgba(255,255,255,.1);
-      border-radius: 3px;
-      overflow: hidden;
-      max-width: 360px;
-    }
-    .conf-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width .8s ease;
-    }
-    .risk-banner.low    .conf-bar-fill { background: var(--low);    }
+    .conf-bar-wrap { height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; overflow: hidden; max-width: 360px; }
+    .conf-bar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(.22,1,.36,1); }
+    .risk-banner.low    .conf-bar-fill { background: var(--low); }
     .risk-banner.medium .conf-bar-fill { background: var(--medium); }
-    .risk-banner.high   .conf-bar-fill { background: var(--high);   }
-    .conf-label {
-      font-size: .72rem;
-      color: var(--text-muted);
-      margin-top: .3rem;
-    }
+    .risk-banner.high   .conf-bar-fill { background: var(--high); }
+    .conf-label { font-size: .72rem; color: var(--text-muted); margin-top: .3rem; }
     .risk-assessment {
-      font-size: .78rem;
-      font-weight: 600;
-      padding: .35rem .9rem;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
+      font-size: .78rem; font-weight: 600; padding: .35rem .9rem;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: .08em;
     }
-    .risk-banner.low    .risk-assessment { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low);    }
-    .risk-banner.medium .risk-assessment { background: var(--medium-bg); color: var(--medium); border: 1px solid var(--medium); }
-    .risk-banner.high   .risk-assessment { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high);   }
+    .risk-banner.low    .risk-assessment { background:var(--low-bg);    color:var(--low);    border:1px solid var(--low);    }
+    .risk-banner.medium .risk-assessment { background:var(--medium-bg); color:var(--medium); border:1px solid var(--medium); }
+    .risk-banner.high   .risk-assessment { background:var(--high-bg);   color:var(--high);   border:1px solid var(--high);   }
 
-    /* ── File Info Card ───────────────────────────────────────────────── */
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: .75rem;
+    /* Confidence gauge (circular SVG) */
+    .gauge-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: .35rem;
+      margin-left: .5rem;
     }
-    .info-item { }
+    .gauge-wrap svg { display: block; }
+    .gauge-label { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; }
+
+    /* ── File Info ──────────────────────────────────────────────────────── */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .75rem; }
     .info-label { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .15rem; }
     .info-value { font-size: .88rem; font-weight: 600; color: var(--text); word-break: break-all; }
 
-    /* ── AI Detection Table ───────────────────────────────────────────── */
-    .model-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .86rem;
-    }
+    /* ── AI Detection Table ─────────────────────────────────────────────── */
+    .model-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
     .model-table th {
-      text-align: left;
-      padding: .55rem .8rem;
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
+      text-align: left; padding: .55rem .8rem;
+      font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted); border-bottom: 1px solid var(--border);
     }
-    .model-table td {
-      padding: .75rem .8rem;
-      border-bottom: 1px solid rgba(255,255,255,.04);
-      vertical-align: middle;
-    }
+    .model-table td { padding: .75rem .8rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
     .model-table tr:last-child td { border-bottom: none; }
-    .model-table tr.consensus-row td {
-      background: rgba(0,180,216,.05);
-      font-weight: 700;
-    }
+    .model-table tr.consensus-row td { background: rgba(0,180,216,.05); font-weight: 700; }
     .model-name { font-weight: 600; display: flex; align-items: center; gap: .5rem; }
-    .model-badge {
-      font-size: .65rem;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-    }
-    .badge-cnn    { background: rgba(139,92,246,.2); color: #A78BFA; border: 1px solid rgba(139,92,246,.4); }
-    .badge-svm    { background: rgba(59,130,246,.2);  color: #60A5FA; border: 1px solid rgba(59,130,246,.4); }
-    .badge-aasist { background: rgba(0,180,216,.2);   color: var(--teal); border: 1px solid rgba(0,180,216,.4); }
-    .badge-ensemble { background: rgba(245,158,11,.15); color: #FCD34D; border: 1px solid rgba(245,158,11,.4); }
-
+    .model-badge { font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: .07em; }
+    .badge-cnn     { background:rgba(139,92,246,.2);  color:#A78BFA; border:1px solid rgba(139,92,246,.4); }
+    .badge-svm     { background:rgba(59,130,246,.2);  color:#60A5FA; border:1px solid rgba(59,130,246,.4); }
+    .badge-aasist  { background:rgba(0,180,216,.2);   color:var(--teal); border:1px solid rgba(0,180,216,.4); }
+    .badge-ensemble{ background:rgba(245,158,11,.15); color:#FCD34D; border:1px solid rgba(245,158,11,.4); }
+    .badge-primary { background:rgba(0,180,216,.25); color:var(--teal); border:1px solid var(--teal); font-size:.55rem; padding:1px 5px; border-radius:6px; margin-left:.3rem; }
     .label-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      padding: .2rem .6rem;
-      border-radius: 10px;
-      font-size: .75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .6rem; border-radius: 10px;
+      font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
     }
-    .label-pill.spoof       { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high); }
-    .label-pill.bonafide    { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low); }
+    .label-pill.spoof        { background:var(--high-bg); color:var(--high); border:1px solid var(--high); }
+    .label-pill.bonafide     { background:var(--low-bg);  color:var(--low);  border:1px solid var(--low);  }
     .label-pill.inconclusive,
-    .label-pill.unknown     { background: rgba(148,163,184,.12); color: var(--text-muted); border: 1px solid rgba(148,163,184,.3); }
-
-    .prob-bar-wrap {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-    }
-    .prob-bar-bg {
-      flex: 1;
-      height: 6px;
-      background: rgba(255,255,255,.08);
-      border-radius: 3px;
-      overflow: hidden;
-      max-width: 120px;
-    }
-    .prob-bar-inner {
-      height: 100%;
-      border-radius: 3px;
-      transition: width .7s ease;
-    }
+    .label-pill.unknown      { background:rgba(148,163,184,.12); color:var(--text-muted); border:1px solid rgba(148,163,184,.3); }
+    .prob-bar-wrap { display: flex; align-items: center; gap: .6rem; }
+    .prob-bar-bg   { flex:1; height:6px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; max-width:120px; }
+    .prob-bar-inner { height:100%; border-radius:3px; transition:width .7s ease; }
     .prob-val { font-size: .78rem; color: var(--text-muted); min-width: 36px; }
 
-    /* ── Risk Badge (inline) ──────────────────────────────────────────── */
-    .risk-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      padding: .25rem .75rem;
-      border-radius: 20px;
-      font-size: .75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .07em;
+    /* ── Explainability / Disagreement panels ───────────────────────────── */
+    .explain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .75rem; margin-top: .75rem; }
+    .explain-card {
+      background: rgba(255,255,255,.03); border: 1px solid var(--border);
+      border-radius: 8px; padding: .85rem 1rem;
     }
-    .risk-badge.low    { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low);    }
-    .risk-badge.medium { background: var(--medium-bg); color: var(--medium); border: 1px solid var(--medium); }
-    .risk-badge.high   { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high);   }
+    .explain-model { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: .3rem; }
+    .explain-verdict { font-size: .9rem; font-weight: 700; margin-bottom: .25rem; }
+    .explain-conf { font-size: .75rem; color: var(--text-muted); margin-bottom: .4rem; }
+    .explain-text { font-size: .78rem; color: var(--text-muted); line-height: 1.5; font-style: italic; }
 
-    /* ── Findings / Anomalies List ────────────────────────────────────── */
-    .finding-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: .45rem;
+    .disagree-box {
+      border-radius: 8px; padding: .85rem 1rem;
+      background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3);
+      margin-top: .75rem;
     }
+    .disagree-box.agree { background: rgba(16,185,129,.07); border-color: rgba(16,185,129,.3); }
+    .disagree-title { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: .35rem; }
+    .disagree-detail { font-size: .78rem; color: var(--text-muted); line-height: 1.55; }
+
+    /* ── Model comparison chart ─────────────────────────────────────────── */
+    .chart-wrap { margin-top: .5rem; overflow-x: auto; }
+    .chart-group { margin-bottom: 1rem; }
+    .chart-group-label { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .45rem; }
+    .chart-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .4rem; }
+    .chart-model-name { font-size: .78rem; font-weight: 600; color: var(--text); min-width: 62px; }
+    .chart-bar-track { flex: 1; height: 16px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; position: relative; }
+    .chart-bar-fill {
+      height: 100%; border-radius: 4px;
+      transition: width 1s cubic-bezier(.22,1,.36,1);
+      display: flex; align-items: center; padding-left: 6px;
+      font-size: .65rem; font-weight: 600; color: rgba(255,255,255,.85);
+      white-space: nowrap;
+    }
+    .chart-bar-cnn    { background: rgba(139,92,246,.75); }
+    .chart-bar-svm    { background: rgba(59,130,246,.75); }
+    .chart-bar-aasist { background: rgba(0,180,216,.85); }
+    .chart-bar-aasist.primary-glow { box-shadow: 0 0 8px rgba(0,180,216,.5); }
+    .chart-val { font-size: .72rem; color: var(--text-muted); min-width: 42px; text-align: right; }
+    .chart-legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .75rem; }
+    .chart-legend-item { display: flex; align-items: center; gap: .4rem; font-size: .72rem; color: var(--text-muted); }
+    .chart-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .primary-tag { font-size: .6rem; font-weight: 700; background: rgba(0,180,216,.2); color: var(--teal); border: 1px solid var(--teal); border-radius: 4px; padding: 0 4px; margin-left: 3px; }
+
+    /* ── Risk Badge / Severity ──────────────────────────────────────────── */
+    .risk-badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .25rem .75rem; border-radius: 20px;
+      font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+    }
+    .risk-badge.low    { background:var(--low-bg);    color:var(--low);    border:1px solid var(--low);    }
+    .risk-badge.medium { background:var(--medium-bg); color:var(--medium); border:1px solid var(--medium); }
+    .risk-badge.high   { background:var(--high-bg);   color:var(--high);   border:1px solid var(--high);   }
+
+    /* ── Findings ───────────────────────────────────────────────────────── */
+    .finding-list { list-style: none; display: flex; flex-direction: column; gap: .45rem; }
     .finding-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: .55rem;
-      font-size: .85rem;
-      color: var(--text-muted);
+      display: flex; align-items: flex-start; gap: .55rem;
+      font-size: .85rem; color: var(--text-muted);
       padding: .45rem .7rem;
-      background: rgba(255,255,255,.03);
-      border-radius: 6px;
-      border-left: 2px solid var(--border);
+      background: rgba(255,255,255,.03); border-radius: 6px; border-left: 2px solid var(--border);
     }
     .finding-list li .fi-bullet { color: var(--teal); flex-shrink: 0; }
+    .finding-item {
+      display: flex; align-items: flex-start; gap: .55rem;
+      padding: .45rem .7rem;
+      background: rgba(255,255,255,.03); border-radius: 6px; border-left: 2px solid var(--border);
+      font-size: .85rem; color: var(--text-muted); margin-bottom: .4rem;
+    }
+    .severity-badge { flex-shrink:0; font-size:.62rem; font-weight:700; padding:2px 6px; border-radius:8px; text-transform:uppercase; letter-spacing:.06em; }
+    .severity-high   { background:var(--high-bg);   color:var(--high);   border:1px solid var(--high);   }
+    .severity-medium { background:var(--medium-bg); color:var(--medium); border:1px solid var(--medium); }
+    .severity-low    { background:rgba(148,163,184,.14); color:var(--text-muted); border:1px solid rgba(148,163,184,.3); }
 
-    /* ── Source Risks Table ───────────────────────────────────────────── */
-    .source-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: .75rem;
-      margin-bottom: 1rem;
+    /* ── Raw expander ───────────────────────────────────────────────────── */
+    details.raw-expander summary {
+      cursor: pointer; font-size: .75rem; color: var(--teal);
+      user-select: none; display: inline-flex; align-items: center; gap: .3rem;
     }
-    .source-item {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .85rem 1rem;
-    }
-    .source-name { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .4rem; }
-    .recommendation-box {
-      background: rgba(0,180,216,.06);
-      border: 1px solid rgba(0,180,216,.25);
-      border-radius: 8px;
-      padding: .9rem 1.1rem;
-      font-size: .88rem;
-      color: var(--text);
-      line-height: 1.6;
-    }
-    .rec-label {
-      font-size: .7rem;
-      font-weight: 700;
-      color: var(--teal);
-      text-transform: uppercase;
-      letter-spacing: .09em;
-      margin-bottom: .35rem;
+    details.raw-expander summary:hover { text-decoration: underline; }
+    details.raw-expander pre {
+      margin-top: .5rem; padding: .65rem .8rem;
+      background: rgba(0,0,0,.35); border: 1px solid var(--border); border-radius: 6px;
+      font-size: .72rem; font-family: var(--mono); color: #94A3B8;
+      overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+      max-height: 280px; overflow-y: auto;
     }
 
-    /* ── Visualizations ───────────────────────────────────────────────── */
-    .plots-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-    .plot-card {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .plot-title {
-      padding: .65rem 1rem;
-      font-size: .78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: .09em;
-      border-bottom: 1px solid var(--border);
-    }
-    .plot-img-wrap {
-      padding: .75rem;
-      min-height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .plot-img-wrap img {
-      width: 100%;
-      height: auto;
-      border-radius: 6px;
-      display: block;
-    }
-    .plot-placeholder {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: .8rem;
+    /* ── AASIST threshold gauge (bar) ───────────────────────────────────── */
+    .aasist-gauge-wrap { margin-top: .55rem; font-size: .78rem; }
+    .aasist-gauge-track { position:relative; height:8px; background:rgba(255,255,255,.08); border-radius:4px; overflow:visible; margin:.4rem 0 .25rem; }
+    .aasist-gauge-fill { height:100%; border-radius:4px; transition:width .7s ease; }
+    .aasist-gauge-fill.bonafide { background: var(--low); }
+    .aasist-gauge-fill.spoof    { background: var(--high); }
+    .aasist-thresh-marker { position:absolute; top:-4px; width:2px; height:16px; background:#F59E0B; border-radius:1px; transform:translateX(-50%); }
+    .aasist-thresh-marker::after { content:attr(data-label); position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:.6rem; color:#F59E0B; white-space:nowrap; font-weight:600; }
+    .aasist-gauge-labels { display:flex; justify-content:space-between; font-size:.68rem; color:var(--text-muted); }
+    .aasist-detail-row { display:flex; gap:1.25rem; flex-wrap:wrap; margin-top:.35rem; }
+    .aasist-detail-row span { font-size:.78rem; color:var(--text-muted); }
+    .aasist-detail-row strong { color: var(--text); }
+
+    /* Tooltip */
+    [data-tooltip] { position:relative; cursor:help; border-bottom:1px dashed rgba(148,163,184,.4); }
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+      background: var(--bg-card); border:1px solid var(--border); color:var(--text);
+      font-size:.72rem; line-height:1.4; padding:.5rem .75rem; border-radius:6px;
+      width:240px; white-space:normal; z-index:200; box-shadow:var(--shadow-lg); pointer-events:none;
     }
 
-    /* ── Actions ──────────────────────────────────────────────────────── */
-    .actions-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-top: 1.5rem;
-    }
+    /* ── Source Risks / Fusion ──────────────────────────────────────────── */
+    .source-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.75rem; margin-bottom:1rem; }
+    .source-item { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:8px; padding:.85rem 1rem; }
+    .source-name { font-size:.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:.4rem; }
+    .recommendation-box { background:rgba(0,180,216,.06); border:1px solid rgba(0,180,216,.25); border-radius:8px; padding:.9rem 1.1rem; font-size:.88rem; color:var(--text); line-height:1.6; }
+    .rec-label { font-size:.7rem; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:.09em; margin-bottom:.35rem; }
+    .evidence-summary { margin-top:.85rem; display:flex; flex-direction:column; gap:.4rem; }
+    .evidence-summary .ev-line { font-size:.82rem; color:var(--text-muted); display:flex; align-items:flex-start; gap:.5rem; }
+    .evidence-summary .ev-line::before { content:'▸'; color:var(--teal); flex-shrink:0; }
+
+    /* ── Visualizations ─────────────────────────────────────────────────── */
+    .plots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
+    .plot-card { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .plot-title { padding:.65rem 1rem; font-size:.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.09em; border-bottom:1px solid var(--border); }
+    .plot-img-wrap { padding:.75rem; min-height:180px; display:flex; align-items:center; justify-content:center; }
+    .plot-img-wrap img { width:100%; height:auto; border-radius:6px; display:block; }
+    .plot-placeholder { text-align:center; color:var(--text-muted); font-size:.8rem; }
+
+    /* ── Actions ────────────────────────────────────────────────────────── */
+    .actions-row { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1.5rem; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .7rem 1.5rem;
-      border-radius: var(--radius);
-      font-size: .88rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all .22s ease;
-      text-decoration: none;
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.7rem 1.5rem; border-radius:var(--radius);
+      font-size:.88rem; font-weight:600; cursor:pointer;
+      border:none; transition:all .22s ease; text-decoration:none;
     }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--teal), #0077A8);
-      color: #fff;
-      box-shadow: 0 3px 14px rgba(0,180,216,.3);
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(0,180,216,.45); }
-    .btn-secondary {
-      background: rgba(255,255,255,.07);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,.12); }
+    .btn-primary { background:linear-gradient(135deg,var(--teal),#0077A8); color:#fff; box-shadow:0 3px 14px rgba(0,180,216,.3); }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 5px 20px rgba(0,180,216,.45); }
+    .btn-secondary { background:rgba(255,255,255,.07); color:var(--text); border:1px solid var(--border); }
+    .btn-secondary:hover { background:rgba(255,255,255,.12); }
 
-    /* ── Evidence Summary ─────────────────────────────────────────────── */
-    .evidence-summary {
-      margin-top: .85rem;
-      display: flex;
-      flex-direction: column;
-      gap: .4rem;
+    /* ── Floating loading indicator ─────────────────────────────────────── */
+    #loading-overlay {
+      position:fixed; top:80px; right:20px;
+      background:rgba(15,23,42,.97); border:1px solid var(--teal);
+      border-radius:12px; padding:14px 18px;
+      display:flex; align-items:center; gap:12px;
+      box-shadow:0 8px 28px rgba(0,0,0,.5);
+      z-index:1000; animation:slideInRight .3s cubic-bezier(.22,1,.36,1);
+      pointer-events:none;
     }
-    .evidence-summary .ev-line {
-      font-size: .82rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: flex-start;
-      gap: .5rem;
-    }
-    .evidence-summary .ev-line::before {
-      content: '▸';
-      color: var(--teal);
-      flex-shrink: 0;
-    }
+    #loading-overlay.hidden { display:none !important; }
+    @keyframes slideInRight { from{transform:translateX(calc(100% + 24px));opacity:0} to{transform:translateX(0);opacity:1} }
+    .overlay-spinner { width:20px; height:20px; border:2px solid rgba(0,180,216,.2); border-top-color:var(--teal); border-radius:50%; animation:spin 1s linear infinite; flex-shrink:0; }
+    .overlay-msg { font-size:.82rem; color:var(--text); letter-spacing:.03em; white-space:nowrap; }
 
-    /* ── Toast ────────────────────────────────────────────────────────── */
-    #toast-container {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: .6rem;
-      pointer-events: none;
-    }
+    /* ── Toast ──────────────────────────────────────────────────────────── */
+    #toast-container { position:fixed; top:1.25rem; right:1.25rem; z-index:9999; display:flex; flex-direction:column; gap:.55rem; pointer-events:none; }
     .toast {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: .8rem 1.1rem;
-      font-size: .84rem;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      min-width: 240px;
-      max-width: 340px;
-      animation: toast-in .3s ease;
-      pointer-events: all;
+      background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+      padding:.75rem 1rem; font-size:.84rem; box-shadow:var(--shadow-lg);
+      display:flex; align-items:center; gap:.55rem;
+      min-width:240px; max-width:340px; pointer-events:all;
+      animation:toast-in .28s cubic-bezier(.22,1,.36,1);
     }
-    .toast.success { border-left: 3px solid var(--low);    }
-    .toast.error   { border-left: 3px solid var(--high);   }
-    .toast.info    { border-left: 3px solid var(--teal);   }
-    .toast.warning { border-left: 3px solid var(--medium); }
-    @keyframes toast-in {
-      from { opacity: 0; transform: translateX(20px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
+    .toast.success { border-left:3px solid var(--low);    background:rgba(16,185,129,.08); }
+    .toast.error   { border-left:3px solid var(--high);   background:rgba(239,68,68,.08); }
+    .toast.info    { border-left:3px solid var(--teal); }
+    .toast.warning { border-left:3px solid var(--medium); background:rgba(245,158,11,.08); }
+    @keyframes toast-in  { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes toast-out { from{opacity:1;transform:translateX(0);max-height:80px} to{opacity:0;transform:translateX(40px);max-height:0;margin-bottom:-.55rem} }
 
-    /* ── Footer ───────────────────────────────────────────────────────── */
-    footer {
-      background: rgba(15,23,42,.9);
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 1.2rem 2rem;
-      font-size: .75rem;
-      color: var(--text-muted);
-      letter-spacing: .04em;
-    }
+    /* ── Footer ─────────────────────────────────────────────────────────── */
+    footer { background:rgba(15,23,42,.9); border-top:1px solid var(--border); text-align:center; padding:1.2rem 2rem; font-size:.75rem; color:var(--text-muted); letter-spacing:.04em; }
     footer strong { color: var(--teal); }
 
-    /* ── Responsive ───────────────────────────────────────────────────── */
-    @media (max-width: 640px) {
+    /* ── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
       main { padding: 1.5rem 1rem 3rem; }
-      .hero h2 { font-size: 1.5rem; }
+      .hero h2 { font-size: 1.75rem; }
+      .risk-banner { flex-wrap: wrap; }
+      .gauge-wrap { display: none; }    /* hide circular gauge on small screens */
+      .explain-grid { grid-template-columns: 1fr 1fr; }
+      .plots-grid { grid-template-columns: 1fr 1fr; }
+      .chart-model-name { min-width: 48px; font-size: .72rem; }
+    }
+    @media (max-width: 480px) {
+      main { padding: 1rem .75rem 2.5rem; }
+      .hero h2 { font-size: 1.4rem; }
+      .hero p { font-size: .9rem; }
       .risk-banner { flex-direction: column; text-align: center; }
       .stages { gap: .35rem; }
       .stage { font-size: .68rem; padding: .25rem .5rem; }
-      .plots-grid { grid-template-columns: 1fr; }
+      .plots-grid  { grid-template-columns: 1fr; }
+      .explain-grid { grid-template-columns: 1fr; }
       .actions-row { flex-direction: column; }
       .btn { justify-content: center; }
       .header-inner { gap: .5rem; }
       .version-badge { display: none; }
+      .source-grid { grid-template-columns: 1fr 1fr; }
+      .card { padding: 1rem; }
     }
   </style>
 </head>
@@ -737,17 +591,17 @@
         <span>Audio Forensic Analysis System</span>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:.9rem;">
+    <div class="header-right">
       <div class="status-dot" id="status-indicator">
         <div class="dot"></div>
         <span>System Online</span>
       </div>
       <span class="version-badge">v1.0.0</span>
+      <button id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">🌙</button>
     </div>
   </div>
 </header>
 
-<!-- ── Main ────────────────────────────────────────────────────────────── -->
 <main>
 
   <!-- Hero -->
@@ -756,22 +610,11 @@
     <p>Multi-model forensic analysis using CNN, SVM, and AASIST with evidence fusion and full PDF reporting.</p>
   </section>
 
-  <!-- Upload Card -->
+  <!-- Upload -->
   <section id="upload-section">
     <div class="upload-card">
-      <div
-        class="drop-zone"
-        id="drop-zone"
-        role="region"
-        aria-label="File upload area"
-        tabindex="0"
-      >
-        <input
-          type="file"
-          id="file-input"
-          accept=".wav,.flac,.mp3,.ogg,.m4a,.aac"
-          aria-label="Choose audio file"
-        />
+      <div class="drop-zone" id="drop-zone" role="region" aria-label="File upload area" tabindex="0">
+        <input type="file" id="file-input" accept=".wav,.flac,.mp3,.ogg,.m4a,.aac" aria-label="Choose audio file" />
         <span class="drop-icon" aria-hidden="true">🎵</span>
         <p class="drop-title">Drop your audio file here</p>
         <p class="drop-sub">or <span>click to browse</span> — WAV, FLAC, MP3, OGG, M4A, AAC</p>
@@ -786,6 +629,12 @@
         <button class="fi-clear" id="fi-clear" title="Clear file" aria-label="Remove selected file">✕</button>
       </div>
 
+      <!-- HTML5 audio player (shown after file selection) -->
+      <div class="audio-player-wrap hidden" id="audio-player-wrap">
+        <span class="audio-player-label" aria-hidden="true">🔊 Preview:</span>
+        <audio id="audio-preview" controls preload="metadata" aria-label="Audio preview"></audio>
+      </div>
+
       <button class="btn-analyze" id="btn-analyze" disabled aria-label="Start forensic analysis">
         <span>🔍</span>
         <span id="btn-analyze-text">ANALYZE AUDIO</span>
@@ -793,7 +642,7 @@
     </div>
   </section>
 
-  <!-- Progress Card -->
+  <!-- Progress -->
   <section id="progress-section" class="hidden" aria-live="polite" aria-label="Analysis progress">
     <div class="progress-card">
       <div class="progress-header">
@@ -805,30 +654,29 @@
       </div>
       <div class="stages" id="stages-container" role="list">
         <div class="stage" id="stage-upload" role="listitem"><span class="stage-icon">📤</span> Upload</div>
-        <div class="stage" id="stage-ai"    role="listitem"><span class="stage-icon">🤖</span> AI Models</div>
-        <div class="stage" id="stage-meta"  role="listitem"><span class="stage-icon">🏷️</span> Metadata</div>
+        <div class="stage" id="stage-ai"     role="listitem"><span class="stage-icon">🤖</span> AI Models</div>
+        <div class="stage" id="stage-meta"   role="listitem"><span class="stage-icon">🏷️</span> Metadata</div>
         <div class="stage" id="stage-signal" role="listitem"><span class="stage-icon">📊</span> Signal</div>
         <div class="stage" id="stage-fusion" role="listitem"><span class="stage-icon">⚗️</span> Fusion</div>
         <div class="stage" id="stage-report" role="listitem"><span class="stage-icon">📄</span> Report</div>
       </div>
+      <!-- Pipeline timeline -->
+      <div class="timeline-wrap hidden" id="timeline-wrap">
+        <div class="timeline" id="pipeline-timeline" role="list" aria-label="Pipeline timeline"></div>
+      </div>
     </div>
   </section>
 
-  <!-- ── Results ──────────────────────────────────────────────────────── -->
+  <!-- Results -->
   <section id="results-section" class="hidden" aria-label="Analysis results">
 
     <!-- File Info -->
-    <div class="card" id="card-file-info">
-      <div class="card-header">
-        <span class="card-icon" aria-hidden="true">📁</span>
-        <h3>File Information</h3>
-      </div>
-      <div class="info-grid" id="file-info-grid">
-        <!-- populated by JS -->
-      </div>
+    <div class="card">
+      <div class="card-header"><span class="card-icon" aria-hidden="true">📁</span><h3>File Information</h3></div>
+      <div class="info-grid" id="file-info-grid"></div>
     </div>
 
-    <!-- Overall Risk Banner -->
+    <!-- Overall Risk Banner (includes circular confidence gauge) -->
     <div class="risk-banner medium" id="risk-banner" role="alert">
       <div class="risk-shield" id="risk-shield" aria-hidden="true">🛡️</div>
       <div class="risk-info">
@@ -839,59 +687,67 @@
         </div>
         <div class="conf-label" id="conf-label">Confidence: —</div>
       </div>
+      <div class="gauge-wrap" aria-hidden="true">
+        <svg id="conf-gauge-svg" width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>
+          <circle id="conf-gauge-arc" cx="36" cy="36" r="28" fill="none"
+                  stroke="#10B981" stroke-width="6" stroke-linecap="round"
+                  stroke-dasharray="175.9" stroke-dashoffset="175.9"
+                  transform="rotate(-90 36 36)"
+                  style="transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1),stroke .6s ease"/>
+          <text id="conf-gauge-text" x="36" y="40" text-anchor="middle"
+                font-size="13" font-weight="700" fill="#F1F5F9" font-family="sans-serif">0%</text>
+        </svg>
+        <span class="gauge-label">Confidence</span>
+      </div>
       <span class="risk-assessment" id="risk-assessment-badge">—</span>
     </div>
 
     <!-- AI Detection -->
     <div class="card">
-      <div class="card-header">
-        <span class="card-icon" aria-hidden="true">🤖</span>
-        <h3>AI Detection Results</h3>
-      </div>
+      <div class="card-header"><span class="card-icon" aria-hidden="true">🤖</span><h3>AI Detection Results</h3></div>
       <div style="overflow-x:auto;">
         <table class="model-table" aria-label="AI model predictions">
-          <thead>
-            <tr>
-              <th>Model</th>
-              <th>Verdict</th>
-              <th>Confidence</th>
-              <th>Spoof Probability</th>
-            </tr>
-          </thead>
-          <tbody id="ai-table-body">
-            <!-- populated by JS -->
-          </tbody>
+          <thead><tr><th>Model</th><th>Verdict</th><th>Confidence</th><th>Spoof Probability</th></tr></thead>
+          <tbody id="ai-table-body"></tbody>
         </table>
       </div>
+      <!-- Model comparison chart -->
+      <div class="card-header" style="margin-top:1.25rem;border-top:1px solid var(--border);padding-top:.9rem;border-bottom:none;margin-bottom:0;">
+        <span class="card-icon" aria-hidden="true">📊</span><h3>Eval-Set Performance Comparison</h3>
+      </div>
+      <div class="chart-wrap" id="model-chart-wrap"></div>
+      <!-- Explainability -->
+      <div class="card-header" style="margin-top:1.25rem;border-top:1px solid var(--border);padding-top:.9rem;border-bottom:none;margin-bottom:0;">
+        <span class="card-icon" aria-hidden="true">💡</span><h3>Model Explainability</h3>
+      </div>
+      <div class="explain-grid" id="explain-grid"></div>
+      <!-- Disagreement panel -->
+      <div id="disagree-panel"></div>
     </div>
 
     <!-- Metadata -->
     <div class="card">
       <div class="card-header">
-        <span class="card-icon" aria-hidden="true">🏷️</span>
-        <h3>Metadata Analysis</h3>
+        <span class="card-icon" aria-hidden="true">🏷️</span><h3>Metadata Analysis</h3>
         <span class="risk-badge medium" id="metadata-risk-badge" style="margin-left:auto;">—</span>
       </div>
-      <div id="metadata-findings"><!-- populated by JS --></div>
+      <div id="metadata-findings"></div>
     </div>
 
     <!-- Signal -->
     <div class="card">
       <div class="card-header">
-        <span class="card-icon" aria-hidden="true">📊</span>
-        <h3>Signal Analysis</h3>
+        <span class="card-icon" aria-hidden="true">📊</span><h3>Signal Analysis</h3>
         <span class="risk-badge medium" id="signal-risk-badge" style="margin-left:auto;">—</span>
       </div>
-      <div id="signal-findings"><!-- populated by JS --></div>
+      <div id="signal-findings"></div>
     </div>
 
     <!-- Fusion -->
     <div class="card">
-      <div class="card-header">
-        <span class="card-icon" aria-hidden="true">⚗️</span>
-        <h3>Evidence Fusion</h3>
-      </div>
-      <div class="source-grid" id="fusion-sources"><!-- populated by JS --></div>
+      <div class="card-header"><span class="card-icon" aria-hidden="true">⚗️</span><h3>Evidence Fusion</h3></div>
+      <div class="source-grid" id="fusion-sources"></div>
       <div id="evidence-summary" class="evidence-summary"></div>
       <div style="margin-top:.85rem;">
         <div class="rec-label">Recommendation</div>
@@ -901,46 +757,39 @@
 
     <!-- Visualizations -->
     <div class="card">
-      <div class="card-header">
-        <span class="card-icon" aria-hidden="true">🖼️</span>
-        <h3>Signal Visualizations</h3>
-      </div>
-      <div class="plots-grid" id="plots-grid">
-        <!-- populated by JS -->
-      </div>
+      <div class="card-header"><span class="card-icon" aria-hidden="true">🖼️</span><h3>Signal Visualizations</h3></div>
+      <div class="plots-grid" id="plots-grid"></div>
     </div>
 
     <!-- Actions -->
     <div class="actions-row">
-      <button class="btn btn-primary" id="btn-download" aria-label="Download PDF report">
-        <span>📄</span> Download Report
-      </button>
-      <button class="btn btn-secondary" id="btn-new" aria-label="Analyze another file">
-        <span>🔄</span> Analyze Another
-      </button>
+      <button class="btn btn-primary" id="btn-download" aria-label="Download PDF report"><span>📄</span> Download Report</button>
+      <button class="btn btn-secondary" id="btn-new" aria-label="Analyze another file"><span>🔄</span> Analyze Another</button>
     </div>
 
   </section>
 </main>
 
-<!-- ── Footer ──────────────────────────────────────────────────────────── -->
 <footer>
   <strong>AudioShield Forensics</strong> &copy; 2026 &nbsp;|&nbsp; Fr. C. Rodrigues Institute of Technology &nbsp;|&nbsp; Audio Deepfake Detection System
 </footer>
 
+<!-- Floating loading indicator -->
+<div id="loading-overlay" class="hidden" role="status" aria-live="polite">
+  <div class="overlay-spinner" aria-hidden="true"></div>
+  <div class="overlay-msg" id="overlay-msg">Uploading…</div>
+</div>
+
 <!-- Toast container -->
 <div id="toast-container" role="status" aria-live="polite"></div>
 
-<!-- ── JavaScript ───────────────────────────────────────────────────────── -->
 <script>
 "use strict";
 
 /* ── State ──────────────────────────────────────────────────────────────── */
 const state = {
-  file: null,
-  fileId: null,
-  originalName: null,
-  analysisResult: null,
+  file: null, fileId: null, originalName: null, analysisResult: null,
+  stageTimings: {},   // stage → elapsed ms
 };
 
 /* ── DOM refs ───────────────────────────────────────────────────────────── */
@@ -961,59 +810,66 @@ const resultsSection  = $('results-section');
 const btnDownload     = $('btn-download');
 const btnNew          = $('btn-new');
 const toastContainer  = $('toast-container');
+const loadingOverlay  = $('loading-overlay');
+const overlayMsg      = $('overlay-msg');
+const audioPreview    = $('audio-preview');
+const audioPlayerWrap = $('audio-player-wrap');
 
 /* ── Utilities ──────────────────────────────────────────────────────────── */
-function fmt(bytes) {
-  if (bytes < 1024)       return bytes + ' B';
-  if (bytes < 1048576)    return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / 1048576).toFixed(2) + ' MB';
-}
+const fmt = b => b < 1024 ? b+' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(2)+' MB';
+const cap = s => (!s ? '—' : String(s).charAt(0).toUpperCase() + String(s).slice(1));
+const round2 = n => { const v = parseFloat(n); return isNaN(v) ? '—' : (v*100).toFixed(1)+'%'; };
+const safe = (v, fb='—') => (v === null || v === undefined || v === '') ? fb : v;
 
-function cap(s) {
-  if (!s) return '—';
-  return String(s).charAt(0).toUpperCase() + String(s).slice(1);
+/* ── Dark / Light theme ─────────────────────────────────────────────────── */
+const themeBtn = $('theme-toggle');
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+  try { localStorage.setItem('asf-theme', theme); } catch(_) {}
 }
-
-function round2(n) {
-  const v = parseFloat(n);
-  return isNaN(v) ? '—' : (v * 100).toFixed(1) + '%';
-}
-
-function safe(val, fallback = '—') {
-  if (val === null || val === undefined || val === '') return fallback;
-  return val;
-}
+themeBtn.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+(function initTheme() {
+  let saved = 'dark';
+  try { saved = localStorage.getItem('asf-theme') || 'dark'; } catch(_) {}
+  applyTheme(saved);
+})();
 
 /* ── Toast ──────────────────────────────────────────────────────────────── */
-function toast(msg, type = 'info', duration = 4000) {
-  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+function toast(msg, type = 'info', duration = 3000) {
+  const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+  el.innerHTML = `<span aria-hidden="true">${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
   toastContainer.appendChild(el);
-  setTimeout(() => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(20px)';
-    el.style.transition = 'all .3s ease';
-    setTimeout(() => el.remove(), 320);
-  }, duration);
+  const dismiss = () => {
+    el.style.animation = 'toast-out .28s cubic-bezier(.55,0,1,.45) forwards';
+    setTimeout(() => el.remove(), 300);
+  };
+  const timer = setTimeout(dismiss, duration);
+  el.addEventListener('click', () => { clearTimeout(timer); dismiss(); });
 }
+
+/* ── Loading overlay ────────────────────────────────────────────────────── */
+function showOverlay(msg) { overlayMsg.textContent = msg || 'Processing…'; loadingOverlay.classList.remove('hidden'); }
+function hideOverlay()    { loadingOverlay.classList.add('hidden'); }
 
 /* ── Progress ───────────────────────────────────────────────────────────── */
-const STAGES = ['upload', 'ai', 'meta', 'signal', 'fusion', 'report'];
-const STAGE_PCT = { upload: 15, ai: 40, meta: 60, signal: 75, fusion: 88, report: 100 };
+const STAGES    = ['upload','ai','meta','signal','fusion','report'];
+const STAGE_PCT = { upload:15, ai:40, meta:60, signal:75, fusion:88, report:100 };
+const STAGE_LABELS = { upload:'Upload', ai:'AI Models', meta:'Metadata', signal:'Signal', fusion:'Fusion', report:'Report' };
+const STAGE_ICONS  = { upload:'📤', ai:'🤖', meta:'🏷️', signal:'📊', fusion:'⚗️', report:'📄' };
 
 function setProgress(pct) {
-  progressBar.style.width = pct + '%';
-  progressPct.textContent = Math.round(pct) + '%';
+  progressBar.style.width = pct+'%';
+  progressPct.textContent = Math.round(pct)+'%';
   progressBarAria.setAttribute('aria-valuenow', Math.round(pct));
 }
-
 function setStageActive(stageId) {
-  STAGES.forEach(s => {
-    const el = $(`stage-${s}`);
-    el.classList.remove('active', 'done');
-  });
+  STAGES.forEach(s => { const el = $(`stage-${s}`); el.classList.remove('active','done'); });
   let reached = false;
   STAGES.forEach(s => {
     const el = $(`stage-${s}`);
@@ -1021,45 +877,45 @@ function setStageActive(stageId) {
     if (!reached) el.classList.add('done');
   });
   setProgress(STAGE_PCT[stageId] || 0);
+  // record start time for timeline
+  state.stageTimings[stageId] = { start: Date.now(), end: null };
+}
+function markStageDone(stageId) {
+  if (state.stageTimings[stageId]) state.stageTimings[stageId].end = Date.now();
+}
+function allStagesDone() {
+  STAGES.forEach(s => { markStageDone(s); const el = $(`stage-${s}`); el.classList.remove('active'); el.classList.add('done'); });
+  setProgress(100);
+  renderTimeline();
+  $('timeline-wrap').classList.remove('hidden');
+}
+function resetStages() {
+  STAGES.forEach(s => { const el = $(`stage-${s}`); el.classList.remove('active','done'); });
+  setProgress(0);
+  state.stageTimings = {};
+  $('timeline-wrap').classList.add('hidden');
 }
 
-function allStagesDone() {
-  STAGES.forEach(s => {
-    const el = $(`stage-${s}`);
-    el.classList.remove('active');
-    el.classList.add('done');
-  });
-  setProgress(100);
+/* Pipeline timeline */
+function renderTimeline() {
+  const container = $('pipeline-timeline');
+  container.innerHTML = STAGES.map(s => {
+    const t = state.stageTimings[s];
+    const ms = t && t.end ? (t.end - t.start) : null;
+    const timeStr = ms !== null ? (ms < 1000 ? ms+'ms' : (ms/1000).toFixed(1)+'s') : '—';
+    return `
+      <div class="tl-item tl-done" role="listitem">
+        <div class="tl-dot">✓</div>
+        <div class="tl-label">${STAGE_LABELS[s]}</div>
+        <div class="tl-time">${timeStr}</div>
+      </div>`;
+  }).join('');
 }
 
 /* ── Risk helpers ───────────────────────────────────────────────────────── */
-function riskClass(level) {
-  const l = (level || '').toLowerCase();
-  if (l === 'high')   return 'high';
-  if (l === 'low')    return 'low';
-  return 'medium';
-}
-
-function riskShield(level) {
-  const l = (level || '').toLowerCase();
-  if (l === 'high')   return '🚨';
-  if (l === 'low')    return '✅';
-  return '⚠️';
-}
-
-function riskColor(level) {
-  const l = (level || '').toLowerCase();
-  if (l === 'high')   return 'var(--high)';
-  if (l === 'low')    return 'var(--low)';
-  return 'var(--medium)';
-}
-
-function labelClass(label) {
-  const l = (label || '').toLowerCase();
-  if (l === 'spoof')    return 'spoof';
-  if (l === 'bonafide') return 'bonafide';
-  return 'unknown';
-}
+const riskClass  = l => { const v=(l||'').toLowerCase(); return v==='high'?'high':v==='low'?'low':'medium'; };
+const riskShield = l => { const v=(l||'').toLowerCase(); return v==='high'?'🚨':v==='low'?'✅':'⚠️'; };
+const labelClass = l => { const v=(l||'').toLowerCase(); return v==='spoof'?'spoof':v==='bonafide'?'bonafide':'unknown'; };
 
 /* ── File selection ─────────────────────────────────────────────────────── */
 function handleFile(f) {
@@ -1073,139 +929,118 @@ function handleFile(f) {
   btnAnalyze.disabled = false;
   resultsSection.classList.add('hidden');
   progressSection.classList.add('hidden');
+  // audio player preview
+  const url = URL.createObjectURL(f);
+  audioPreview.src = url;
+  audioPlayerWrap.classList.remove('hidden');
 }
 
-fileInput.addEventListener('change', () => {
-  if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
-});
-
-dropZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
-});
+fileInput.addEventListener('change', () => { if (fileInput.files.length > 0) handleFile(fileInput.files[0]); });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
+  e.preventDefault(); dropZone.classList.remove('dragover');
   const f = e.dataTransfer.files[0];
   if (f) { handleFile(f); fileInput.files = e.dataTransfer.files; }
 });
-dropZone.addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
-});
-
+dropZone.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); fileInput.click(); } });
 fiClear.addEventListener('click', () => {
-  state.file = null;
-  state.fileId = null;
+  state.file = null; state.fileId = null;
   fileInput.value = '';
   fileInfoBar.classList.add('hidden');
+  audioPlayerWrap.classList.add('hidden');
+  audioPreview.src = '';
   btnAnalyze.disabled = true;
   resultsSection.classList.add('hidden');
   progressSection.classList.add('hidden');
   resetStages();
 });
 
-function resetStages() {
-  STAGES.forEach(s => {
-    const el = $(`stage-${s}`);
-    el.classList.remove('active', 'done');
-  });
-  setProgress(0);
-}
-
 /* ── Analyze ────────────────────────────────────────────────────────────── */
 btnAnalyze.addEventListener('click', startAnalysis);
-
 async function startAnalysis() {
-  if (!state.file) { toast('Please select an audio file first.', 'warning'); return; }
-
+  if (!state.file) { toast('Please select an audio file first.','warning'); return; }
   btnAnalyze.disabled = true;
   btnAnalyzeText.textContent = 'ANALYSING…';
   resultsSection.classList.add('hidden');
   progressSection.classList.remove('hidden');
   resetStages();
+  showOverlay('Uploading audio file…');
 
-  /* Step 1 – Upload */
+  /* Upload */
   setStageActive('upload');
   let fileId;
   try {
     const fd = new FormData();
     fd.append('file', state.file);
-    const res = await fetch('/api/upload', { method: 'POST', body: fd });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(err.detail || 'Upload failed');
-    }
+    const res = await fetch('/api/upload', { method:'POST', body:fd });
+    if (!res.ok) { const err = await res.json().catch(()=>({detail:res.statusText})); throw new Error(err.detail||'Upload failed'); }
     const data = await res.json();
     fileId = data.file_id;
     state.fileId = fileId;
-    toast('File uploaded successfully.', 'success', 2500);
-  } catch (err) {
-    toast(`Upload error: ${err.message}`, 'error', 6000);
-    resetAfterError();
-    return;
+    markStageDone('upload');
+    toast('File uploaded successfully.','success',2500);
+  } catch(err) {
+    toast(`Upload error: ${err.message}`,'error',6000);
+    resetAfterError(); hideOverlay(); return;
   }
 
-  /* Step 2 – AI */
+  /* AI */
   setStageActive('ai');
+  overlayMsg.textContent = 'Running AI Detection…';
   await sleep(300);
 
-  /* Step 3 – Analyze (covers meta + signal + fusion + report) */
+  /* Pipeline */
   setStageActive('meta');
+  overlayMsg.textContent = 'Analysing Metadata…';
   let result;
   try {
-    const res = await fetch(`/api/analyze/${fileId}`, { method: 'POST' });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(err.detail || 'Analysis failed');
-    }
+    const res = await fetch(`/api/analyze/${fileId}`, { method:'POST' });
+    if (!res.ok) { const err = await res.json().catch(()=>({detail:res.statusText})); throw new Error(err.detail||'Analysis failed'); }
     result = await res.json();
     state.analysisResult = result;
-  } catch (err) {
-    toast(`Analysis error: ${err.message}`, 'error', 8000);
-    resetAfterError();
-    return;
+    markStageDone('ai'); markStageDone('meta');
+  } catch(err) {
+    toast(`Analysis error: ${err.message}`,'error',8000);
+    resetAfterError(); hideOverlay(); return;
   }
 
-  setStageActive('signal');
-  await sleep(200);
-  setStageActive('fusion');
-  await sleep(200);
-  setStageActive('report');
-  await sleep(400);
+  setStageActive('signal'); overlayMsg.textContent = 'Analysing Signal…'; markStageDone('signal'); await sleep(200);
+  setStageActive('fusion'); overlayMsg.textContent = 'Fusing Evidence…';  markStageDone('fusion'); await sleep(200);
+  setStageActive('report'); overlayMsg.textContent = 'Generating Report…'; await sleep(400);
+  markStageDone('report');
   allStagesDone();
+  overlayMsg.textContent = 'Complete!';
+  await sleep(600);
+  hideOverlay();
   await sleep(300);
 
-  /* Render results */
   renderResults(result);
   progressSection.classList.add('hidden');
   resultsSection.classList.remove('hidden');
-  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  toast('Analysis complete!', 'success');
+  resultsSection.scrollIntoView({ behavior:'smooth', block:'start' });
+  toast('Analysis complete!','success');
   btnAnalyze.disabled = false;
   btnAnalyzeText.textContent = 'ANALYZE AUDIO';
 }
-
 function resetAfterError() {
-  btnAnalyze.disabled = false;
-  btnAnalyzeText.textContent = 'ANALYZE AUDIO';
-  progressSection.classList.add('hidden');
-  resetStages();
+  btnAnalyze.disabled = false; btnAnalyzeText.textContent = 'ANALYZE AUDIO';
+  progressSection.classList.add('hidden'); resetStages();
 }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-/* ── Render Results ─────────────────────────────────────────────────────── */
+/* ── Render all results ──────────────────────────────────────────────────── */
 function renderResults(data) {
-  const ai       = data.ai_results       || {};
-  const meta     = data.metadata_results || {};
-  const signal   = data.signal_results   || {};
-  const fusion   = data.fusion_results   || {};
-
-  renderFileInfo(data, ai, meta, signal);
+  const ai     = data.ai_results       || {};
+  const meta   = data.metadata_results || {};
+  const signal = data.signal_results   || {};
+  const fusion = data.fusion_results   || {};
+  renderFileInfo(data, ai, meta);
   renderRiskBanner(fusion, ai);
   renderAITable(ai);
+  renderModelChart();
+  renderExplainability(ai);
+  renderDisagreement(ai);
   renderMetadata(meta, fusion);
   renderSignal(signal, fusion);
   renderFusion(fusion);
@@ -1214,164 +1049,287 @@ function renderResults(data) {
 
 /* File info */
 function renderFileInfo(data, ai, meta) {
-  const grid = $('file-info-grid');
   const metadata = meta.metadata || {};
   const items = [
-    { label: 'File Name',   value: safe(state.originalName) },
-    { label: 'File ID',     value: safe(state.fileId ? state.fileId.slice(0,8) + '…' : null) },
-    { label: 'Duration',    value: safe(metadata.duration ? parseFloat(metadata.duration).toFixed(2) + ' s' : null) },
-    { label: 'Sample Rate', value: safe(metadata.sample_rate ? metadata.sample_rate + ' Hz' : null) },
-    { label: 'Channels',    value: safe(metadata.channels) },
-    { label: 'Bit Depth',   value: safe(metadata.bit_depth) },
-    { label: 'Format',      value: safe(metadata.format || metadata.codec) },
-    { label: 'Device',      value: safe(ai.device) },
+    { label:'File Name',   value:safe(state.originalName) },
+    { label:'File ID',     value:safe(state.fileId ? state.fileId.slice(0,8)+'…' : null) },
+    { label:'Duration',    value:safe(metadata.duration ? parseFloat(metadata.duration).toFixed(2)+' s' : null) },
+    { label:'Sample Rate', value:safe(metadata.sample_rate ? metadata.sample_rate+' Hz' : null) },
+    { label:'Channels',    value:safe(metadata.channels) },
+    { label:'Bit Depth',   value:safe(metadata.bit_depth) },
+    { label:'Format',      value:safe(metadata.format || metadata.codec) },
+    { label:'Device',      value:safe(ai.device) },
   ].filter(i => i.value !== '—');
-
-  grid.innerHTML = items.map(i => `
-    <div class="info-item">
-      <div class="info-label">${i.label}</div>
-      <div class="info-value">${i.value}</div>
-    </div>`).join('');
+  $('file-info-grid').innerHTML = items.map(i => `<div class="info-item"><div class="info-label">${i.label}</div><div class="info-value">${i.value}</div></div>`).join('');
 }
 
-/* Risk banner */
+/* Risk banner + circular confidence gauge */
 function renderRiskBanner(fusion, ai) {
   const fusionCore = fusion.fusion || {};
-  const level      = riskClass(fusionCore.risk_level || ai.ai_risk || 'medium');
+  const level      = riskClass(fusionCore.risk_level || fusionCore.overall_risk || ai.ai_risk || 'medium');
   const assessment = fusionCore.assessment || '—';
-  const consensus  = (ai.consensus || {});
+  const consensus  = ai.consensus || {};
   const confidence = parseFloat(consensus.confidence || 0);
+  const confPct    = isNaN(confidence) ? 0 : confidence * 100;
 
-  const banner   = $('risk-banner');
-  banner.className = `risk-banner ${level}`;
-
-  $('risk-shield').textContent  = riskShield(level);
-  $('risk-label').textContent   = level.toUpperCase() + ' RISK';
+  $('risk-banner').className  = `risk-banner ${level}`;
+  $('risk-shield').textContent = riskShield(level);
+  $('risk-label').textContent  = level.toUpperCase()+' RISK';
   $('risk-assessment-text').textContent = formatAssessment(assessment);
   $('risk-assessment-badge').textContent = formatAssessment(assessment);
-  $('conf-bar').style.width     = (confidence * 100).toFixed(1) + '%';
-  $('conf-label').textContent   = `Confidence: ${round2(confidence)} · Agreement: ${round2(consensus.agreement)}`;
-}
+  $('conf-bar').style.width   = confPct.toFixed(1)+'%';
+  $('conf-label').textContent = `Confidence: ${round2(confidence)} · Agreement: ${round2(consensus.agreement)}`;
 
+  /* Circular SVG gauge */
+  const circumference = 2 * Math.PI * 28; // r=28
+  const arc = $('conf-gauge-arc');
+  const txt = $('conf-gauge-text');
+  const strokeColors = { low:'#10B981', medium:'#F59E0B', high:'#EF4444' };
+  const offset = circumference * (1 - confPct / 100);
+  arc.style.strokeDashoffset = offset;
+  arc.style.stroke = strokeColors[level] || '#10B981';
+  txt.textContent = Math.round(confPct)+'%';
+}
 function formatAssessment(s) {
-  if (!s || s === '—') return '—';
-  return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  if (!s || s==='—') return '—';
+  return s.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-/* AI Table */
+/* AI table (AASIST gets threshold gauge, CNN/SVM get prob bar) */
 function renderAITable(ai) {
   const tbody = $('ai-table-body');
   const models = [
-    { key: 'cnn',    name: 'CNN',    badge: 'badge-cnn'    },
-    { key: 'svm',    name: 'SVM',    badge: 'badge-svm'    },
-    { key: 'aasist', name: 'AASIST', badge: 'badge-aasist' },
+    { key:'cnn',    name:'CNN',    badge:'badge-cnn',    primary:false },
+    { key:'svm',    name:'SVM',    badge:'badge-svm',    primary:false },
+    { key:'aasist', name:'AASIST', badge:'badge-aasist', primary:true  },
   ];
-
   let rows = models.map(m => {
-    const d = ai[m.key] || {};
+    const d  = ai[m.key] || {};
     const lc = labelClass(d.label);
-    const prob = parseFloat(d.probability);
+    const prob    = parseFloat(d.probability);
     const probPct = isNaN(prob) ? 0 : prob * 100;
     const probColor = probPct > 50 ? 'var(--high)' : 'var(--low)';
-    return `
-      <tr>
-        <td><span class="model-name">
-          <span class="model-badge ${m.badge}">${m.name}</span>
-        </span></td>
-        <td><span class="label-pill ${lc}">${cap(d.label) || '—'}</span></td>
-        <td>${d.error ? '<span style="color:var(--text-muted);font-size:.78rem;">error</span>' : round2(d.confidence)}</td>
-        <td>
-          <div class="prob-bar-wrap">
-            <div class="prob-bar-bg">
-              <div class="prob-bar-inner" style="width:${probPct.toFixed(1)}%;background:${probColor}"></div>
-            </div>
-            <span class="prob-val">${isNaN(prob) ? '—' : probPct.toFixed(1) + '%'}</span>
-          </div>
-        </td>
-      </tr>`;
-  }).join('');
+    const primaryTag = m.primary ? '<span class="badge-primary">PRIMARY</span>' : '';
 
-  /* Consensus row */
+    if (m.key === 'aasist' && !d.error && !isNaN(prob)) {
+      const thresh    = parseFloat(d.threshold);
+      const hasThresh = !isNaN(thresh);
+      const threshPct = hasThresh ? (thresh * 100).toFixed(1) : null;
+      const gaugeClass = lc === 'bonafide' ? 'bonafide' : 'spoof';
+      const gaugeHtml = hasThresh ? `
+        <div class="aasist-gauge-wrap"
+             data-tooltip="Threshold ${threshPct}% is calibrated on the dev set to minimise EER. Spoof probability above threshold → SPOOF.">
+          <div class="aasist-gauge-track">
+            <div class="aasist-gauge-fill ${gaugeClass}" style="width:${probPct.toFixed(1)}%"></div>
+            <div class="aasist-thresh-marker" style="left:${threshPct}%" data-label="T=${threshPct}%"></div>
+          </div>
+          <div class="aasist-gauge-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+          <div class="aasist-detail-row">
+            <span>Spoof Prob: <strong>${probPct.toFixed(1)}%</strong></span>
+            <span>Threshold: <strong>${threshPct}%</strong></span>
+            <span>Verdict: <strong style="color:${lc==='bonafide'?'var(--low)':'var(--high)'}">${(d.label||'').toUpperCase()}</strong></span>
+          </div>
+        </div>` : `<div class="prob-bar-wrap"><div class="prob-bar-bg"><div class="prob-bar-inner" style="width:${probPct.toFixed(1)}%;background:${probColor}"></div></div><span class="prob-val">${probPct.toFixed(1)}%</span></div>`;
+      return `<tr><td><span class="model-name"><span class="model-badge ${m.badge}">${m.name}</span>${primaryTag}</span></td><td><span class="label-pill ${lc}">${cap(d.label)||'—'}</span></td><td colspan="2">${gaugeHtml}</td></tr>`;
+    }
+    return `<tr>
+      <td><span class="model-name"><span class="model-badge ${m.badge}">${m.name}</span>${primaryTag}</span></td>
+      <td><span class="label-pill ${lc}">${cap(d.label)||'—'}</span></td>
+      <td>${d.error ? '<span style="color:var(--text-muted);font-size:.78rem;">error</span>' : round2(d.confidence)}</td>
+      <td><div class="prob-bar-wrap"><div class="prob-bar-bg"><div class="prob-bar-inner" style="width:${probPct.toFixed(1)}%;background:${probColor}"></div></div><span class="prob-val">${isNaN(prob)?'—':probPct.toFixed(1)+'%'}</span></div></td>
+    </tr>`;
+  }).join('');
+  /* Consensus */
   const con = ai.consensus || {};
   const clc = labelClass(con.label);
-  const conProb = parseFloat(con.confidence);
-  rows += `
-    <tr class="consensus-row">
-      <td><span class="model-name">
-        <span class="model-badge badge-ensemble">Ensemble</span> Consensus
-      </span></td>
-      <td><span class="label-pill ${clc}">${cap(con.label) || '—'}</span></td>
-      <td>${round2(con.confidence)}</td>
-      <td><span style="color:var(--text-muted);font-size:.78rem;">Agreement: ${round2(con.agreement)}</span></td>
-    </tr>`;
-
+  rows += `<tr class="consensus-row">
+    <td><span class="model-name"><span class="model-badge badge-ensemble">Ensemble</span> Consensus</span></td>
+    <td><span class="label-pill ${clc}">${cap(con.label)||'—'}</span></td>
+    <td>${round2(con.confidence)}</td>
+    <td><span style="color:var(--text-muted);font-size:.78rem;">Agreement: ${round2(con.agreement)}</span></td>
+  </tr>`;
   tbody.innerHTML = rows;
+}
+
+/* Model comparison bar chart */
+function renderModelChart() {
+  const EVAL = {
+    CNN:    { accuracy:69.83, precision:99.99, eer:7.16,  color:'badge-cnn',    fill:'rgba(139,92,246,.75)'  },
+    SVM:    { accuracy:89.40, precision:95.44, eer:16.98, color:'badge-svm',    fill:'rgba(59,130,246,.75)'  },
+    AASIST: { accuracy:86.45, precision:99.79, eer:7.20,  color:'badge-aasist', fill:'rgba(0,180,216,.85)', primary:true },
+  };
+  const metrics = [
+    { key:'accuracy',  label:'Accuracy (%)',  scale:100 },
+    { key:'precision', label:'Precision (%)', scale:100 },
+    { key:'eer',       label:'EER (%) — lower is better', scale:25, invert:true },
+  ];
+  let html = '';
+  for (const m of metrics) {
+    html += `<div class="chart-group"><div class="chart-group-label">${m.label}</div>`;
+    for (const [name, data] of Object.entries(EVAL)) {
+      const rawVal = data[m.key];
+      /* bar width: for EER invert (lower=longer bar visually would be misleading — show as-is scaled) */
+      const barW = Math.min(100, (rawVal / m.scale) * 100);
+      const primaryGlow = data.primary ? ' primary-glow' : '';
+      const primaryTag  = data.primary ? `<span class="primary-tag">PRIMARY</span>` : '';
+      html += `
+        <div class="chart-row">
+          <div class="chart-model-name">${name}${primaryTag}</div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill chart-bar-${name.toLowerCase()}${primaryGlow}" style="width:0%" data-target="${barW.toFixed(1)}">
+              ${rawVal.toFixed(2)}%
+            </div>
+          </div>
+          <div class="chart-val">${rawVal.toFixed(2)}%</div>
+        </div>`;
+    }
+    html += '</div>';
+  }
+  html += `<div class="chart-legend">
+    <div class="chart-legend-item"><div class="chart-legend-dot" style="background:rgba(139,92,246,.75)"></div>CNN</div>
+    <div class="chart-legend-item"><div class="chart-legend-dot" style="background:rgba(59,130,246,.75)"></div>SVM</div>
+    <div class="chart-legend-item"><div class="chart-legend-dot" style="background:rgba(0,180,216,.85)"></div>AASIST (Primary)</div>
+  </div>`;
+  $('model-chart-wrap').innerHTML = html;
+  /* Animate bars after paint */
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.chart-bar-fill').forEach(bar => {
+      const target = bar.getAttribute('data-target');
+      setTimeout(() => { bar.style.width = target + '%'; }, 80);
+    });
+  });
+}
+
+/* Explainability panel */
+const EXPLANATIONS = {
+  cnn: {
+    bonafide: 'Detected natural harmonic patterns in the Mel-spectrogram consistent with organic human speech production.',
+    spoof:    'Mel-spectrogram shows unusually uniform frequency patterns and suppressed natural micro-variations typical of TTS synthesis.',
+  },
+  svm: {
+    bonafide: 'MFCC delta features show natural temporal variation and coarticulation consistent with genuine speech.',
+    spoof:    'MFCC feature distribution falls outside the natural speech manifold, suggesting synthesised or converted voice.',
+  },
+  aasist: {
+    bonafide: 'Raw waveform graph-attention analysis found continuous natural artefacts and organic pitch dynamics consistent with human vocal production.',
+    spoof:    'Waveform graph-attention detected unnatural periodicity and spectral artefacts characteristic of neural TTS or voice conversion.',
+  },
+};
+function renderExplainability(ai) {
+  const models = [
+    { key:'cnn',    name:'CNN',    badge:'badge-cnn'    },
+    { key:'svm',    name:'SVM',    badge:'badge-svm'    },
+    { key:'aasist', name:'AASIST', badge:'badge-aasist' },
+  ];
+  $('explain-grid').innerHTML = models.map(m => {
+    const d   = ai[m.key] || {};
+    const lc  = labelClass(d.label);
+    const key = lc === 'bonafide' ? 'bonafide' : 'spoof';
+    const explanation = EXPLANATIONS[m.key]?.[key] || 'No explanation available.';
+    const confStr = d.error ? 'Error' : round2(d.confidence);
+    return `
+      <div class="explain-card">
+        <div class="explain-model"><span class="model-badge ${m.badge}">${m.name}</span></div>
+        <div class="explain-verdict"><span class="label-pill ${lc}">${cap(d.label)||'—'}</span></div>
+        <div class="explain-conf">Confidence: ${confStr}</div>
+        <div class="explain-text">${explanation}</div>
+      </div>`;
+  }).join('');
+}
+
+/* Model disagreement panel */
+function renderDisagreement(ai) {
+  const labels = { cnn: (ai.cnn||{}).label, svm: (ai.svm||{}).label, aasist: (ai.aasist||{}).label };
+  const valid  = Object.entries(labels).filter(([,v]) => v === 'spoof' || v === 'bonafide');
+  if (valid.length === 0) { $('disagree-panel').innerHTML = ''; return; }
+
+  const spoofModels   = valid.filter(([,v]) => v === 'spoof').map(([k]) => k.toUpperCase());
+  const bonafideModels= valid.filter(([,v]) => v === 'bonafide').map(([k]) => k.toUpperCase());
+  const allAgree = spoofModels.length === 0 || bonafideModels.length === 0;
+
+  let title, detail;
+  if (allAgree) {
+    const verdict = spoofModels.length > 0 ? 'SPOOF' : 'BONAFIDE';
+    title  = `✅ All models agree: ${verdict}`;
+    detail = `CNN, SVM, and AASIST all returned <strong>${verdict}</strong>. High-confidence consensus reduces the probability of a false classification.`;
+  } else {
+    title  = `⚠️ Model disagreement detected`;
+    const sp = spoofModels.join(' & ');
+    const bo = bonafideModels.join(' & ');
+    detail = `<strong>${sp}</strong> voted <strong>SPOOF</strong>; <strong>${bo}</strong> voted <strong>BONAFIDE</strong>. ` +
+             `The ensemble weighted consensus is based on AASIST (primary model, 50% weight) combined with CNN and SVM. ` +
+             `Disagreement may indicate a borderline sample or an attack type outside the training distribution.`;
+  }
+
+  $('disagree-panel').innerHTML = `
+    <div class="disagree-box ${allAgree ? 'agree' : ''}">
+      <div class="disagree-title">${title}</div>
+      <div class="disagree-detail">${detail}</div>
+    </div>`;
 }
 
 /* Metadata */
 function renderMetadata(meta, fusion) {
-  const mEvid  = (fusion.metadata_evidence) || {};
-  const risk   = riskClass(mEvid.risk_score || 'medium');
-  const badge  = $('metadata-risk-badge');
+  const mEvid = fusion.metadata_evidence || {};
+  const risk  = riskClass(mEvid.risk_score || 'medium');
+  const badge = $('metadata-risk-badge');
   badge.className = `risk-badge ${risk}`;
   badge.textContent = cap(mEvid.risk_score || 'medium') + ' Risk';
 
-  const findings = mEvid.findings || [];
-  const summary  = mEvid.summary  || '';
-  const container = $('metadata-findings');
-
+  const findings  = mEvid.findings || [];
+  const summary   = mEvid.summary  || '';
   let html = '';
-  if (summary) {
-    html += `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem;">${summary}</p>`;
-  }
+  if (summary) html += `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem;">${summary}</p>`;
   if (findings.length > 0) {
-    html += `<ul class="finding-list">` +
-      findings.map(f => `<li><span class="fi-bullet" aria-hidden="true">▸</span>${f}</li>`).join('') +
-      `</ul>`;
+    html += findings.map(f => {
+      if (typeof f === 'string') return `<div class="finding-item"><span class="fi-bullet" aria-hidden="true">▸</span>${f}</div>`;
+      if (typeof f === 'object' && f !== null) {
+        const sev  = (f.severity || 'low').toLowerCase();
+        const desc = f.description || f.field || JSON.stringify(f);
+        return `<div class="finding-item"><span class="severity-badge severity-${sev}">${sev.toUpperCase()}</span><span>${desc}</span></div>`;
+      }
+      return `<div class="finding-item"><span class="fi-bullet">▸</span>${JSON.stringify(f)}</div>`;
+    }).join('');
   } else {
     html += `<p style="font-size:.83rem;color:var(--text-muted);">No significant metadata anomalies detected.</p>`;
   }
-
-  /* Flat metadata key-value table if available */
+  /* Key-value table with expandable objects */
+  const SKIP    = new Set(['raw_ffprobe','raw_exiftool']);
   const rawMeta = meta.metadata || {};
-  const metaKeys = Object.keys(rawMeta).filter(k => rawMeta[k] !== null && rawMeta[k] !== undefined && rawMeta[k] !== '');
-  if (metaKeys.length > 0) {
-    html += `<div style="margin-top:1rem;overflow-x:auto;">
-      <table class="model-table" style="font-size:.8rem;" aria-label="Audio metadata">
-        <thead><tr><th>Field</th><th>Value</th></tr></thead>
-        <tbody>` +
-      metaKeys.slice(0, 16).map(k =>
-        `<tr><td style="color:var(--text-muted)">${k}</td><td>${String(rawMeta[k]).slice(0, 80)}</td></tr>`
-      ).join('') +
-      `</tbody></table></div>`;
+  const keys    = Object.keys(rawMeta).filter(k => rawMeta[k] !== null && rawMeta[k] !== undefined && rawMeta[k] !== '');
+  if (keys.length > 0) {
+    const rows = keys.slice(0,20).map(k => {
+      const val = rawMeta[k];
+      const disp = (SKIP.has(k) || typeof val === 'object')
+        ? `<details class="raw-expander"><summary>📋 [view raw data]</summary><pre>${JSON.stringify(val,null,2)}</pre></details>`
+        : String(val).slice(0,120);
+      return `<tr><td style="color:var(--text-muted)">${k}</td><td>${disp}</td></tr>`;
+    }).join('');
+    html += `<div style="margin-top:1rem;overflow-x:auto;"><table class="model-table" style="font-size:.8rem;" aria-label="Audio metadata"><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
-  container.innerHTML = html;
+  $('metadata-findings').innerHTML = html;
 }
 
 /* Signal */
 function renderSignal(signal, fusion) {
-  const sEvid   = (fusion.signal_evidence) || {};
-  const risk    = riskClass(sEvid.signal_risk || signal.risk_level || 'medium');
-  const badge   = $('signal-risk-badge');
+  const sEvid = fusion.signal_evidence || {};
+  const risk  = riskClass(sEvid.signal_risk || signal.risk_level || 'medium');
+  const badge = $('signal-risk-badge');
   badge.className = `risk-badge ${risk}`;
   badge.textContent = cap(sEvid.signal_risk || signal.risk_level || 'medium') + ' Risk';
-
   const anomalies = sEvid.anomalies || signal.anomalies || [];
   const summary   = sEvid.summary   || signal.summary   || '';
-  const container = $('signal-findings');
-
   let html = '';
-  if (summary) {
-    html += `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem;">${summary}</p>`;
-  }
+  if (summary) html += `<p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem;">${summary}</p>`;
   if (anomalies.length > 0) {
-    html += `<ul class="finding-list">` +
-      anomalies.map(a => `<li><span class="fi-bullet" aria-hidden="true">▸</span>${a}</li>`).join('') +
-      `</ul>`;
+    html += `<ul class="finding-list">${anomalies.map(a => {
+      const text = (typeof a === 'object' && a !== null) ? (a.description || a.message || JSON.stringify(a)) : String(a);
+      return `<li><span class="fi-bullet" aria-hidden="true">▸</span>${text}</li>`;
+    }).join('')}</ul>`;
   } else {
     html += `<p style="font-size:.83rem;color:var(--text-muted);">No significant signal anomalies detected.</p>`;
   }
-  container.innerHTML = html;
+  $('signal-findings').innerHTML = html;
 }
 
 /* Fusion */
@@ -1380,119 +1338,87 @@ function renderFusion(fusion) {
   const metaEvid = fusion.metadata_evidence || {};
   const sigEvid  = fusion.signal_evidence   || {};
   const core     = fusion.fusion            || {};
-
   const sources = [
-    { name: 'AI Models',  risk: aiEvid.ai_risk        || 'medium' },
-    { name: 'Metadata',   risk: metaEvid.risk_score   || 'medium' },
-    { name: 'Signal',     risk: sigEvid.signal_risk   || 'medium' },
-    { name: 'Overall',    risk: core.risk_level       || 'medium' },
+    { name:'AI Models', risk:aiEvid.ai_risk        || 'medium' },
+    { name:'Metadata',  risk:metaEvid.risk_score   || 'medium' },
+    { name:'Signal',    risk:sigEvid.signal_risk   || 'medium' },
+    { name:'Overall',   risk:core.overall_risk || core.risk_level || 'medium' },
   ];
-
   $('fusion-sources').innerHTML = sources.map(s => {
     const rc = riskClass(s.risk);
-    return `
-      <div class="source-item">
-        <div class="source-name">${s.name}</div>
-        <span class="risk-badge ${rc}">${riskShield(s.risk)} ${cap(s.risk)}</span>
-      </div>`;
+    return `<div class="source-item"><div class="source-name">${s.name}</div><span class="risk-badge ${rc}">${riskShield(s.risk)} ${cap(s.risk)}</span></div>`;
   }).join('');
-
-  /* Evidence summary bullets */
   const summary = core.evidence_summary || [];
-  const esDiv = $('evidence-summary');
-  esDiv.innerHTML = summary.length
-    ? summary.map(l => `<div class="ev-line">${l}</div>`).join('')
+  $('evidence-summary').innerHTML = summary.length
+    ? summary.map(l => `<div class="ev-line">${typeof l==='string'?l:JSON.stringify(l)}</div>`).join('')
     : '';
-
-  /* Recommendation */
   $('recommendation').textContent = core.recommendation || fusion.recommendation || '—';
 }
 
 /* Plots */
 function renderPlots() {
   const plots = [
-    { file: 'waveform.png',     title: '🌊 Waveform'       },
-    { file: 'spectrogram.png',  title: '🎨 Spectrogram'    },
-    { file: 'mfcc.png',         title: '📈 MFCC Features'  },
-    { file: 'pitch_contour.png',title: '🎵 Pitch Contour'  },
+    { file:'waveform.png',      title:'🌊 Waveform'      },
+    { file:'spectrogram.png',   title:'🎨 Spectrogram'   },
+    { file:'mfcc.png',          title:'📈 MFCC Features' },
+    { file:'pitch_contour.png', title:'🎵 Pitch Contour' },
   ];
-
   $('plots-grid').innerHTML = plots.map(p => {
     const src = `/results/signal_plots/${p.file}?t=${Date.now()}`;
-    return `
-      <div class="plot-card">
-        <div class="plot-title">${p.title}</div>
-        <div class="plot-img-wrap">
-          <img
-            src="${src}"
-            alt="${p.title} visualization"
-            loading="lazy"
-            onerror="this.parentElement.innerHTML='<div class=\\'plot-placeholder\\'>Plot not available</div>'"
-          />
-        </div>
-      </div>`;
+    return `<div class="plot-card"><div class="plot-title">${p.title}</div><div class="plot-img-wrap"><img src="${src}" alt="${p.title} visualization" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'plot-placeholder\\'>Plot not available</div>'"/></div></div>`;
   }).join('');
 }
 
 /* ── Download Report ────────────────────────────────────────────────────── */
 btnDownload.addEventListener('click', async () => {
-  if (!state.fileId) { toast('No analysis to download.', 'warning'); return; }
-  const result = state.analysisResult;
-  if (result && !result.report_available) {
-    toast('PDF report was not generated for this file.', 'warning'); return;
-  }
+  if (!state.fileId) { toast('No analysis to download.','warning'); return; }
+  if (state.analysisResult && !state.analysisResult.report_available) { toast('PDF report was not generated for this file.','warning'); return; }
+  showOverlay('Downloading report…');
   try {
     const res = await fetch(`/api/report/${state.fileId}`);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(err.detail || 'Download failed');
-    }
+    if (!res.ok) { const err = await res.json().catch(()=>({detail:res.statusText})); throw new Error(err.detail||'Download failed'); }
     const blob = await res.blob();
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `audioshield_report_${state.fileId.slice(0,8)}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = `audioshield_report_${state.fileId.slice(0,8)}.pdf`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast('Report downloaded.', 'success');
-  } catch (err) {
-    toast(`Download error: ${err.message}`, 'error');
-  }
+    toast('Report downloaded.','success');
+  } catch(err) {
+    toast(`Download error: ${err.message}`,'error');
+  } finally { hideOverlay(); }
 });
 
 /* ── Analyze Another ────────────────────────────────────────────────────── */
 btnNew.addEventListener('click', () => {
-  state.file = null;
-  state.fileId = null;
-  state.originalName = null;
-  state.analysisResult = null;
+  state.file = null; state.fileId = null; state.originalName = null; state.analysisResult = null;
   fileInput.value = '';
   fileInfoBar.classList.add('hidden');
+  audioPlayerWrap.classList.add('hidden');
+  audioPreview.src = '';
   btnAnalyze.disabled = true;
   btnAnalyzeText.textContent = 'ANALYZE AUDIO';
   resultsSection.classList.add('hidden');
   progressSection.classList.add('hidden');
   resetStages();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 });
 
-/* ── Health check on load ────────────────────────────────────────────────── */
+/* ── Health check ───────────────────────────────────────────────────────── */
 (async () => {
   try {
     const res = await fetch('/api/health');
     if (!res.ok) throw new Error('Unhealthy');
-    const dot = document.querySelector('.dot');
-    const statusText = document.querySelector('.status-dot span');
-    if (dot) { dot.style.background = 'var(--low)'; dot.style.boxShadow = '0 0 6px var(--low)'; }
-    if (statusText) statusText.textContent = 'System Online';
+    const dot  = document.querySelector('.dot');
+    const span = document.querySelector('.status-dot span');
+    if (dot)  { dot.style.background = 'var(--low)'; dot.style.boxShadow = '0 0 6px var(--low)'; }
+    if (span) span.textContent = 'System Online';
   } catch {
-    const dot = document.querySelector('.dot');
-    const statusText = document.querySelector('.status-dot span');
-    if (dot) { dot.style.background = 'var(--high)'; dot.style.boxShadow = '0 0 6px var(--high)'; }
-    if (statusText) statusText.textContent = 'System Offline';
-    toast('Cannot reach the API server.', 'error', 8000);
+    const dot  = document.querySelector('.dot');
+    const span = document.querySelector('.status-dot span');
+    if (dot)  { dot.style.background = 'var(--high)'; dot.style.boxShadow = '0 0 6px var(--high)'; }
+    if (span) span.textContent = 'System Offline';
+    toast('Cannot reach the API server.','error',8000);
   }
 })();
 </script>

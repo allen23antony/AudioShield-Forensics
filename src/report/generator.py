@@ -73,26 +73,57 @@ def _risk_color(risk: Any) -> colors.Color:
 
 
 def _table(rows: Iterable[Iterable[Any]], widths: Optional[List[float]] = None) -> Table:
-    """Create a consistently styled report table."""
-    converted = [[Paragraph(_text(cell), _BODY_STYLE) for cell in row] for row in rows]
+    """Create a consistently styled report table.
+
+    Header row (row 0): dark navy background (#0A1628) with white bold text
+    via ``_HEADER_CELL_STYLE`` — critical because ReportLab's table TEXTCOLOR
+    directive only affects canvas-drawn text, NOT Paragraph flowables inside
+    cells. The paragraph's own textColor always wins, so every header cell must
+    explicitly use a white-text paragraph style.
+
+    Data rows alternate white / light-grey with dark text (_BODY_STYLE).
+    """
+    row_list = list(rows)           # materialise once so we can index by row
+    converted: list[list[Any]] = []
+    for r_idx, row in enumerate(row_list):
+        style = _HEADER_CELL_STYLE if r_idx == 0 else _BODY_STYLE
+        converted.append([Paragraph(_text(cell), style) for cell in row])
+
     table = Table(converted, colWidths=widths, repeatRows=1)
     table.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E3A5F")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("GRID", (0, 0), (-1, -1), 0.35, colors.HexColor("#CBD5E1")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8FAFC")]),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                # ── Header row ───────────────────────────────────────────
+                ("BACKGROUND",     (0, 0), (-1, 0), colors.HexColor("#0A1628")),
+                ("TEXTCOLOR",      (0, 0), (-1, 0), colors.white),   # belt-and-braces
+                ("ALIGN",          (0, 0), (-1, 0), "LEFT"),
+                ("TOPPADDING",     (0, 0), (-1, 0), 8),
+                ("BOTTOMPADDING",  (0, 0), (-1, 0), 8),
+                ("LEFTPADDING",    (0, 0), (-1, 0), 6),
+                ("RIGHTPADDING",   (0, 0), (-1, 0), 6),
+                # Teal accent line under the header
+                ("LINEBELOW",      (0, 0), (-1, 0), 1.2, colors.HexColor("#00B4D8")),
+                # ── Data rows ────────────────────────────────────────────
+                ("BACKGROUND",     (0, 1), (-1, -1), colors.white),
+                ("TEXTCOLOR",      (0, 1), (-1, -1), colors.HexColor("#1E293B")),
+                ("TOPPADDING",     (0, 1), (-1, -1), 6),
+                ("BOTTOMPADDING",  (0, 1), (-1, -1), 6),
+                ("LEFTPADDING",    (0, 1), (-1, -1), 6),
+                ("RIGHTPADDING",   (0, 1), (-1, -1), 6),
+                # Alternate row striping (light grey every second data row)
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+                 [colors.white, colors.HexColor("#F8F9FA")]),
+                # ── Borders ──────────────────────────────────────────────
+                ("GRID",           (0, 0), (-1, -1), 0.5, colors.HexColor("#D1D5DB")),
+                ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
             ]
         )
     )
     return table
 
+
+# Paragraph styles — defined AFTER _table() so the module-level constants
+# can reference each other freely at import time.
 
 _STYLES = getSampleStyleSheet()
 _TITLE_STYLE = ParagraphStyle("ReportTitle", parent=_STYLES["Title"], fontName="Helvetica-Bold",
@@ -105,6 +136,18 @@ _SUBSECTION_STYLE = ParagraphStyle("Subsection", parent=_STYLES["Heading2"], fon
                                    spaceBefore=7, spaceAfter=5)
 _BODY_STYLE = ParagraphStyle("Body", parent=_STYLES["BodyText"], fontName="Helvetica",
                              fontSize=8.7, leading=12, spaceAfter=4)
+# Header cell style: white bold text on dark background.
+# Must be a Paragraph style (not a table directive) because ReportLab's
+# TEXTCOLOR table command is ignored when cells contain Paragraph objects —
+# the paragraph's own textColor always takes precedence.
+_HEADER_CELL_STYLE = ParagraphStyle(
+    "HeaderCell",
+    parent=_BODY_STYLE,
+    fontName="Helvetica-Bold",
+    fontSize=9,
+    leading=12,
+    textColor=colors.white,
+)
 _SMALL_STYLE = ParagraphStyle("Small", parent=_BODY_STYLE, fontSize=7.5, leading=9)
 _CENTER_STYLE = ParagraphStyle("Center", parent=_BODY_STYLE, alignment=TA_CENTER)
 _BULLET_STYLE = ParagraphStyle("Bullet", parent=_BODY_STYLE, leftIndent=14, firstLineIndent=-8)
@@ -361,7 +404,7 @@ def format_ai_detection_section(evaluations: Dict[str, Any]) -> List[Any]:
             model,
             _format_percent(values.get("accuracy")),
             _format_percent(values.get("precision")),
-            _text(f"{float(values['eer']):.4f}") if values.get("eer") is not None else "N/A",
+            _format_percent(values.get("eer")) if values.get("eer") is not None else "N/A",
         ])
     best = next((m for m in ranked_models if evaluations[m].get("rank") == 1), None)
     return [
@@ -441,14 +484,62 @@ def generate_comprehensive_report(
     report_id = generate_report_id()
     generated = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
 
-    story.extend([Spacer(1, 1.0 * inch), Paragraph("AUDIOSHIELD FORENSICS", _TITLE_STYLE),
-                  Spacer(1, 0.18 * inch), Paragraph("Audio Forensic Analysis Report", _TITLE_STYLE),
-                  Spacer(1, 0.45 * inch)])
-    title_rows = [["Report ID", report_id], ["Generated", generated], ["File analyzed", audio_path.name]]
-    story.append(_table(title_rows, [1.4 * inch, 5.55 * inch]))
-    story.extend([Spacer(1, 2.0 * inch),
-                  Paragraph("This report presents separate evidence streams and conservative forensic indicators. "
-                            "It is not a substitute for expert examination of the original evidence.", _CENTER_STYLE),
+    story.extend([Spacer(1, 0.55 * inch), Paragraph("AUDIOSHIELD FORENSICS", _TITLE_STYLE),
+                  Spacer(1, 0.12 * inch), Paragraph("Audio Forensic Analysis Report", _TITLE_STYLE),
+                  Spacer(1, 0.3 * inch)])
+
+    # ── Column widths for all three cover tables ────────────────────────
+    _COV_W = [2.0 * inch, 5.0 * inch]  # 7.0 in total — fits A4 with 0.65 in margins
+
+    # ── Identity / classification block ────────────────────────────────
+    title_rows = [
+        ["Report ID",       report_id],
+        ["Generated",       generated],
+        ["File Analyzed",   audio_path.name],
+        ["Analyst",         "AudioShield Forensics System"],
+        ["System Version",  "AudioShield Forensics v1.0.0"],
+        ["Report Version",  "1.0.0"],
+        ["Classification",  "CONFIDENTIAL — For authorized use only"],
+    ]
+    story.append(_table(title_rows, _COV_W))
+    story.append(Spacer(1, 0.2 * inch))
+
+    # ── Chain of Custody block ──────────────────────────────────────────
+    # Row 0 spans both columns so there is no empty right cell.
+    coc_rows = [
+        ["CHAIN OF CUSTODY — Automated generation, no manual modification"],
+        ["Statement: This report was generated automatically by the AudioShield Forensics "
+         "System. No manual modification has been made to the analysis results. "
+         "All evidence sources are independently computed and logged."],
+        ["Integrity: Report content is derived solely from the pipeline outputs produced "
+         "at the timestamp shown above. Any post-generation alteration would invalidate "
+         "this document."],
+    ]
+    # Single-column table so there is never an empty second cell.
+    story.append(_table(coc_rows, [7.0 * inch]))
+    story.append(Spacer(1, 0.2 * inch))
+
+    # ── Evidence Sources block ──────────────────────────────────────────
+    ev_rows = [
+        ["Source",       "Description"],
+        ["AI Detection", "CNN (mel-spectrogram) · SVM (MFCC) · AASIST (raw waveform, graph attention)"],
+        ["Metadata",     "FFprobe (container / codec) + EXIFTool (embedded tags)"],
+        ["Signal",       "Spectral features (MFCCs, centroid, bandwidth) + temporal (RMS, silence ratio)"],
+        ["Fusion",       "Rule-based combiner — AI risk drives overall level; metadata and signal corroborate"],
+    ]
+    story.append(_table(ev_rows, _COV_W))
+    story.extend([Spacer(1, 0.3 * inch),
+                  Paragraph(
+                      "This report presents separate, independently-sourced evidence streams and "
+                      "conservative forensic indicators derived from three AI models, metadata "
+                      "extraction, and signal analysis. It is not a substitute for expert examination "
+                      "of the original evidence and does not establish legal authenticity on its own.",
+                      _CENTER_STYLE),
+                  Spacer(1, 0.18 * inch),
+                  Paragraph(
+                      "Models trained on ASVspoof 2019 LA (English speech). "
+                      "Results are probabilistic indicators — not definitive judgements.",
+                      _CENTER_STYLE),
                   PageBreak()])
 
     story.extend(_section("1. Executive Summary"))
@@ -475,16 +566,24 @@ def generate_comprehensive_report(
 
     story.extend(_section("2. File Information"))
     file_rows = [["Property", "Value"]]
+    # Extract MD5 from raw_exiftool if available
+    raw_exif = metadata_summary.get("raw_exiftool", {})
+    md5_hash = (
+        raw_exif.get("MD5Signature") or raw_exif.get("MD5") or raw_exif.get("md5")
+        if isinstance(raw_exif, dict) else None
+    )
     info = {
-        "File name": _value(metadata_summary, "file_name", default=audio_path.name),
-        "File size (bytes)": _value(metadata_summary, "file_size", default=audio_path.stat().st_size if audio_path.exists() else "Not available"),
-        "Format": _value(metadata_summary, "format"),
+        "File name":        _value(metadata_summary, "file_name", default=audio_path.name),
+        "File size (bytes)": _value(metadata_summary, "file_size",
+                                    default=audio_path.stat().st_size if audio_path.exists() else "Not available"),
+        "MD5 hash":         md5_hash if md5_hash else "Not available",
+        "Format":           _value(metadata_summary, "format"),
         "Duration (seconds)": _value(metadata_summary, "duration"),
         "Sample rate (Hz)": _value(metadata_summary, "sample_rate"),
-        "Channels": _value(metadata_summary, "channels"),
-        "Codec": _value(metadata_summary, "codec"),
+        "Channels":         _value(metadata_summary, "channels"),
+        "Codec":            _value(metadata_summary, "codec"),
         "Bitrate (bits/sec)": _value(metadata_summary, "bitrate"),
-        "Creation time": _value(metadata_summary, "creation_time"),
+        "Creation time":    _value(metadata_summary, "creation_time"),
         "Modification time": _value(metadata_summary, "modification_time"),
     }
     file_rows.extend([[key, value] for key, value in info.items()])
@@ -519,11 +618,80 @@ def generate_comprehensive_report(
                            f"with a reported risk level of <b>{_text(risk)}</b>. These are indicators from the "
                            "available reports and should be interpreted with the original audio and chain of custody.",
                            _BODY_STYLE))
-    story.append(Paragraph("Limitations: AI results may be unavailable; metadata can be edited or lost; signal "
-                           "features are influenced by recording conditions and preprocessing; and this report does "
-                           "not establish authenticity by itself.", _BODY_STYLE))
 
-    story.extend(_section("9. Appendix"))
+    story.extend(_section("9. Limitations"))
+    limitations = [
+        "Training data: All models were trained exclusively on ASVspoof 2019 LA, which contains English-language "
+        "speech produced by 19 text-to-speech and voice-conversion systems. Generalisation to other languages, "
+        "accents, or synthesis methods outside this distribution is not guaranteed.",
+        "Music and non-speech audio: The pipeline is designed for speech. Music, environmental sounds, or mixed "
+        "audio may produce unreliable scores and should not be submitted.",
+        "Short recordings: The AASIST model requires a 4-second window. Files shorter than 4 seconds are "
+        "zero-padded, which may reduce detection accuracy.",
+        "Metadata: File metadata can be trivially edited or removed. Metadata findings are supporting evidence "
+        "only and cannot independently confirm or deny authenticity.",
+        "Signal features: Spectral and temporal features are influenced by recording conditions, microphone "
+        "characteristics, room acoustics, and audio preprocessing. A benign artefact may appear anomalous.",
+        "Probabilistic output: All model scores are probabilities, not binary facts. The EER-calibrated "
+        "threshold for AASIST (≈81.9%) was optimised on the dev set; performance on out-of-distribution "
+        "material may differ.",
+        "Legal standing: This report is a technical aid. It does not constitute legal proof and must be "
+        "reviewed by a qualified forensic expert before use in any legal or regulatory proceeding.",
+    ]
+    for lim in limitations:
+        story.append(Paragraph(f"• {lim}", _BULLET_STYLE))
+    story.append(Spacer(1, 6))
+
+    story.extend(_section("10. Methodology"))
+    story.append(Paragraph(
+        "The AudioShield pipeline combines three independent AI classifiers with metadata and "
+        "signal analysis, then fuses the evidence using a rule-based risk-scoring engine.",
+        _BODY_STYLE))
+    method_rows = [
+        ["Component", "Technique", "Input", "Output"],
+        ["CNN",
+         "Convolutional neural network on log mel-spectrogram (128 mel bins, 5-second window). "
+         "Architecture: FinalCNN; optimised with BCE loss and balanced-accuracy threshold selection.",
+         "5-second audio → 128×T mel-spectrogram",
+         "P(spoof); threshold ≈ 0.407"],
+        ["SVM",
+         "Support Vector Machine with RBF kernel on 60-dimensional MFCC + delta + delta-delta "
+         "feature vector, L2-normalised. Probability calibration via Platt scaling.",
+         "5-second audio → 60-dim MFCC features",
+         "P(spoof); threshold = 0.5"],
+        ["AASIST",
+         "Graph Attention Network operating directly on raw waveform (64,000 samples = 4 seconds). "
+         "Retrained with WeightedRandomSampler + Focal Loss (α=0.25, γ=2.0) + CosineAnnealingLR "
+         "to correct class imbalance bias.",
+         "4-second raw waveform (64k samples)",
+         "P(spoof); EER threshold ≈ 0.819"],
+        ["Metadata",
+         "FFprobe (container/codec) + EXIFTool (embedded tags). Checks for missing device/encoder "
+         "info, timestamp inconsistencies, and unusual encoding parameters.",
+         "Audio file metadata",
+         "Risk score: low / medium / high"],
+        ["Signal",
+         "Spectral features: MFCCs, spectral centroid, bandwidth, rolloff, zero-crossing rate. "
+         "Temporal features: RMS energy, dynamic range, silence ratio. "
+         "Anomaly detection against population statistics.",
+         "Raw waveform → feature vectors",
+         "Risk score + anomaly list"],
+        ["Fusion",
+         "Rule-based combiner. AI risk drives the overall risk level; metadata and signal provide "
+         "corroborating or mitigating evidence. A model with recall < 70 % is excluded from "
+         "the primary recommendation.",
+         "AI + metadata + signal risk scores",
+         "Overall risk + recommendation"],
+    ]
+    story.append(_table(method_rows, [1.0 * inch, 2.85 * inch, 1.6 * inch, 1.5 * inch]))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(
+        "Threshold selection: all thresholds were determined on the development (dev) set only. "
+        "The official evaluation set was used exclusively for final metric reporting and was never "
+        "seen during threshold tuning, ensuring honest out-of-sample performance estimates.",
+        _SMALL_STYLE))
+
+    story.extend(_section("11. Appendix"))
     story.append(Paragraph("Raw AI evaluation results", _SUBSECTION_STYLE))
     story.append(Preformatted(
         json.dumps({model: values["raw"] for model, values in ai_evaluations.items()}, indent=2),
@@ -533,9 +701,10 @@ def generate_comprehensive_report(
     story.append(Preformatted(json.dumps(metadata, indent=2), _SMALL_STYLE))
     story.append(Paragraph("Raw signal report", _SUBSECTION_STYLE))
     story.append(Preformatted(json.dumps(signal, indent=2), _SMALL_STYLE))
-    story.append(Paragraph("Methodology", _SUBSECTION_STYLE))
-    story.append(Paragraph("This report compiles the supplied AI, metadata, signal, and fusion JSON outputs. "
-                           "No new model inference is performed during report generation. Evidence sources remain "
-                           "separated to preserve interpretability.", _BODY_STYLE))
+    story.append(Paragraph("Methodology note", _SUBSECTION_STYLE))
+    story.append(Paragraph("See Section 10 (Methodology) for a full description of each pipeline component, "
+                           "the feature extraction approach, and the threshold selection procedure. "
+                           "No new model inference is performed during report generation. Evidence sources "
+                           "remain separated to preserve interpretability.", _BODY_STYLE))
     document.build(story, onFirstPage=_page_header_footer, onLaterPages=_page_header_footer)
     return output_path

@@ -132,7 +132,7 @@ def predict_aasist(audio_path: Path) -> Dict[str, Any]:
 
     label = "spoof" if probability > threshold else "bonafide"
     confidence = probability if label == "spoof" else 1.0 - probability
-    return {"label": label, "confidence": confidence, "probability": probability}
+    return {"label": label, "confidence": confidence, "probability": probability, "threshold": threshold}
 
 
 def _failed_result(exc: Exception) -> Dict[str, Any]:

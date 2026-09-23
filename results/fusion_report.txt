@@ -2,7 +2,7 @@ AudioShield Evidence Fusion Report
 ====================================
 Overall risk: low
 Assessment: likely_authentic
-Evidence confidence: 0.76
+Evidence confidence: 0.97
 
 Evidence summary:
 - AI consensus: bonafide (risk: low).
