@@ -63,7 +63,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 # Helpers
 # ---------------------------------------------------------------------------
 
-ALLOWED_EXTENSIONS = {".wav", ".flac", ".mp3", ".ogg", ".m4a", ".aac"}
+ALLOWED_EXTENSIONS = {".wav", ".flac", ".mp3", ".ogg", ".m4a", ".aac", ".opus", ".wma"}
 
 
 def _assert_file_exists(file_id: str) -> Path:
@@ -157,7 +157,16 @@ async def analyze_audio(file_id: str) -> dict[str, Any]:
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except (ValueError, RuntimeError, KeyError, ImportError, OSError) as exc:
-        raise HTTPException(status_code=500, detail=f"Pipeline error: {exc}") from exc
+        msg = str(exc)
+        # Surface a helpful hint when the failure is an audio-format issue.
+        if "format not recognised" in msg.lower() or "unable to read audio" in msg.lower():
+            msg = (
+                f"{msg} — "
+                "Audio format not supported by the pipeline. "
+                "Recommended formats: WAV, FLAC. "
+                "To convert: ffmpeg -i input.m4a -ar 16000 -ac 1 output.wav"
+            )
+        raise HTTPException(status_code=500, detail=f"Pipeline error: {msg}") from exc
 
     ai_raw: dict[str, Any] = pipeline_output.get("ai", {})
     metadata_raw: dict[str, Any] = pipeline_output.get("metadata", {})

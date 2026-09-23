@@ -1001,7 +1001,13 @@ async function startAnalysis() {
     state.analysisResult = result;
     markStageDone('ai'); markStageDone('meta');
   } catch(err) {
-    toast(`Analysis error: ${err.message}`,'error',8000);
+    let errMsg = err.message || 'Analysis failed';
+    // Surface a helpful conversion hint for audio-format failures.
+    if (/format not recognised|unable to read audio|format not supported/i.test(errMsg)) {
+      errMsg += ' — WAV and FLAC are most reliable. '
+              + 'Convert with: ffmpeg -i input.m4a -ar 16000 -ac 1 output.wav';
+    }
+    toast(`Analysis error: ${errMsg}`, 'error', 10000);
     resetAfterError(); hideOverlay(); return;
   }
 
