@@ -160,12 +160,24 @@ def format_metadata_section(metadata: Dict[str, Any]) -> List[Any]:
     analysis = metadata.get("analysis", {})
     findings = evidence.get("findings") or analysis.get("findings") or []
     flowables: List[Any] = [Paragraph("Extracted metadata", _SUBSECTION_STYLE)]
+
+    # ── Metadata table — explicit field list so timestamp rows are labelled correctly ──
+    # Fields excluded here because they get their own TIMESTAMPS sub-table below:
+    #   creation_time, modification_time, embedded_creation_time, upload_time
+    # Fields excluded because they are raw blobs:
+    #   raw_ffprobe, raw_exiftool
+    _SKIP = {
+        "raw_ffprobe", "raw_exiftool",
+        "creation_time", "modification_time",
+        "embedded_creation_time", "upload_time",
+    }
     rows = [["Field", "Value"]]
     for key, value in details.items():
-        if key not in {"raw_ffprobe", "raw_exiftool"}:
+        if key not in _SKIP:
             rows.append([key.replace("_", " ").title(), _text(value)])
     flowables.append(_table(rows, [1.65 * inch, 5.3 * inch]))
     flowables.append(Spacer(1, 8))
+
     flowables.append(Paragraph(f"Risk score: <b>{_text(evidence.get('risk_score', analysis.get('risk_score')))}</b>",
                                _BODY_STYLE))
     flowables.append(Paragraph("Findings", _SUBSECTION_STYLE))
@@ -222,32 +234,180 @@ def format_signal_section(signal: Dict[str, Any]) -> List[Any]:
 def format_fusion_section(fusion: Dict[str, Any]) -> List[Any]:
     """Return flowables for AI, metadata, signal, and combined fusion evidence."""
     combined = fusion.get("fusion", fusion)
-    ai = fusion.get("ai_evidence", {})
+    ai       = fusion.get("ai_evidence", {})
     metadata = fusion.get("metadata_evidence", {})
-    signal = fusion.get("signal_evidence", {})
+    signal   = fusion.get("signal_evidence", {})
     rows = [
         ["Evidence source", "Risk / result"],
-        ["AI", f"{_text(ai.get('consensus'))} (risk: {_text(ai.get('ai_risk'))})"],
+        ["AI",       f"{_text(ai.get('consensus'))} (risk: {_text(ai.get('ai_risk'))})"],
         ["Metadata", _text(metadata.get("risk_score"))],
-        ["Signal", _text(signal.get("signal_risk"))],
-        ["Overall", _text(combined.get("overall_risk"))],
+        ["Signal",   _text(signal.get("signal_risk"))],
+        ["Overall",  _text(combined.get("overall_risk"))],
     ]
     flowables = [_table(rows, [2.0 * inch, 4.95 * inch]), Spacer(1, 8)]
-    flowables.append(Paragraph(f"Assessment: <b>{_text(combined.get('assessment'))}</b> | "
-                               f"Confidence: <b>{_text(combined.get('confidence'))}</b>", _BODY_STYLE))
+
+    # Ensemble vote/agreement — not "confidence" — per forensic clarity requirement.
+    # The fusion JSON stores consensus as a plain string; agreement is not in this dict.
+    # Derive vote counts directly from the per-model labels.
+    consensus_raw = ai.get("consensus", {})
+    # consensus may be a dict {"label":…,"confidence":…,"agreement":…} or just a string label
+    if isinstance(consensus_raw, dict):
+        consensus = consensus_raw
+    else:
+        consensus = {"label": str(consensus_raw)}
+    ens_label = _text(consensus.get("label", "unknown"))
+
+    # Derive vote counts from per-model labels in ai_evidence.
+    _VOTE_MODELS = ("cnn", "svm", "aasist")
+    _vote_labels = [
+        str(ai.get(m, {}).get("label", "")).lower()
+        for m in _VOTE_MODELS
+        if ai.get(m, {}).get("label", "").lower() in ("spoof", "bonafide")
+    ]
+    _n_spoof    = _vote_labels.count("spoof")
+    _n_bonafide = _vote_labels.count("bonafide")
+    _n_total    = len(_vote_labels)
+    if _n_total > 0:
+        _n_winning = max(_n_spoof, _n_bonafide)
+        vote_str   = f"{_n_winning} / {_n_total} models"
+        agr_pct    = _n_winning / _n_total * 100
+        agr_str    = f"{agr_pct:.1f}%"
+    else:
+        vote_str = "N/A"
+        agr_str  = "N/A"
+
+    # Mean decision strength: average individual model confidences.
+    _confs = [
+        float(ai.get(m, {}).get("confidence", 0))
+        for m in _VOTE_MODELS
+        if ai.get(m, {}).get("label", "").lower() in ("spoof", "bonafide")
+    ]
+    mean_str = f"{sum(_confs)/len(_confs)*100:.1f}%" if _confs else "N/A"
+
+    flowables.append(Paragraph(
+        f"Ensemble decision: <b>{ens_label.upper()}</b> — Vote: <b>{vote_str}</b> — Agreement: <b>{agr_str}</b>",
+        _BODY_STYLE))
+    flowables.append(Paragraph(
+        f"Mean model decision strength: <b>{mean_str}</b> "
+        "(arithmetic mean of per-model decision strengths — not a spoof probability).",
+        _SMALL_STYLE))
+
+    flowables.append(Paragraph(f"Assessment: <b>{_text(combined.get('assessment'))}</b>", _BODY_STYLE))
     flowables.append(Paragraph(f"Reasoning: {_text(combined.get('reasoning'))}", _BODY_STYLE))
     flowables.append(Paragraph(f"Recommendation: {_text(combined.get('recommendation'))}", _BODY_STYLE))
+
+    # ── AI model breakdown + disagreement note ───────────────────────────
     flowables.append(Paragraph("AI model breakdown", _SUBSECTION_STYLE))
-    model_rows = [["Model", "Label", "Confidence"]]
-    for model_name in ("cnn", "svm", "aasist"):
-        result = ai.get(model_name, {})
-        model_rows.append([model_name.upper(), result.get("label", "unknown"), result.get("confidence", "Not available")])
-    flowables.append(_table(model_rows, [1.5 * inch, 2.0 * inch, 3.45 * inch]))
+    model_rows = [["Model", "Label", "Confidence", "Spoof Probability"]]
+    cnn_result    = ai.get("cnn",    {})
+    svm_result    = ai.get("svm",    {})
+    aasist_result = ai.get("aasist", {})
+    for model_name, result in (("CNN", cnn_result), ("SVM", svm_result), ("AASIST", aasist_result)):
+        prob_val = result.get("probability")
+        prob_str = f"{float(prob_val)*100:.1f}%" if prob_val is not None else "N/A"
+        conf_val = result.get("confidence")
+        conf_str = f"{float(conf_val)*100:.1f}%" if conf_val is not None else "N/A"
+        model_rows.append([model_name, _text(result.get("label", "unknown")), conf_str, prob_str])
+    flowables.append(_table(model_rows, [1.2 * inch, 1.4 * inch, 1.5 * inch, 2.8 * inch]))
+
+    # Detect model disagreement and add explanatory note.
+    votes = [r.get("label", "").lower() for r in (cnn_result, svm_result, aasist_result)
+             if r.get("label") in {"spoof", "bonafide"}]
+    if votes and len(set(votes)) > 1:
+        spoof_voters    = [n for n, r in (("CNN", cnn_result), ("SVM", svm_result), ("AASIST", aasist_result))
+                           if r.get("label", "").lower() == "spoof"]
+        bonafide_voters = [n for n, r in (("CNN", cnn_result), ("SVM", svm_result), ("AASIST", aasist_result))
+                           if r.get("label", "").lower() == "bonafide"]
+        sp_str = " & ".join(spoof_voters)
+        bo_str = " & ".join(bonafide_voters)
+
+        # Check for probable CNN/SVM vs AASIST split (classic domain-shift pattern).
+        aasist_bonafide = aasist_result.get("label", "").lower() == "bonafide"
+        cnn_spoof  = cnn_result.get("label", "").lower() == "spoof"
+        svm_spoof  = svm_result.get("label", "").lower() == "spoof"
+        domain_note = ""
+        if aasist_bonafide and cnn_spoof and svm_spoof:
+            domain_note = (
+                " This disagreement pattern — AASIST BONAFIDE, CNN/SVM SPOOF — is associated with "
+                "microphone-domain recordings or low-amplitude speech that differ from the studio-quality "
+                "ASVspoof 2019 LA training data. CNN and SVM are spectrogram/MFCC based and more "
+                "sensitive to recording-condition differences (domain shift) than the waveform-based AASIST."
+            )
+
+        flowables.append(Spacer(1, 4))
+        flowables.append(Paragraph(
+            f"<b>Model disagreement:</b> {sp_str} voted SPOOF; {bo_str} voted BONAFIDE. "
+            f"The ensemble result is determined by majority vote ({len(spoof_voters)} vs {len(bonafide_voters)}). "
+            f"The reported confidence is the arithmetic mean of each model's individual decision strength, "
+            f"not a weighted score.{domain_note}",
+            _SMALL_STYLE,
+        ))
     return flowables
 
 
 def _bullet_list(items: Iterable[Any]) -> List[Any]:
     return [Paragraph(f"• {_text(item)}", _BULLET_STYLE) for item in items]
+
+
+def _sanitize_for_report(data: Any, _depth: int = 0) -> Any:
+    """Recursively sanitize a JSON-serializable value for the human-readable appendix.
+
+    Removes:
+    - Legacy timestamp fields that were replaced by Upload Date in the main body.
+    - Local Windows machine paths (replaced with relative paths or omitted).
+
+    Normalizes:
+    - Full Windows timezone names in upload_time values → short codes (IST, UTC …).
+
+    Does NOT modify the underlying data — operates on a copy.
+    """
+    _LEGACY_TS_KEYS = {
+        "creation_time", "modification_time", "embedded_creation_time",
+        "FileCreateDate", "FileModifyDate", "FileAccessDate",
+        "CreateDate", "ModifyDate",
+    }
+    _TZ_FULL_TO_SHORT = {
+        "India Standard Time": "IST", "Coordinated Universal Time": "UTC",
+        "Greenwich Mean Time": "GMT",  "Eastern Standard Time": "EST",
+        "Eastern Daylight Time": "EDT","Central Standard Time": "CST",
+        "Central Daylight Time": "CDT","Pacific Standard Time": "PST",
+        "Pacific Daylight Time": "PDT",
+    }
+    _PROJECT_ROOT_STR = str(Path(__file__).resolve().parents[2])
+
+    def _clean_path(value: str) -> str:
+        try:
+            p = Path(value)
+            rel = p.relative_to(_PROJECT_ROOT_STR)
+            return str(rel).replace("\\", "/")
+        except (ValueError, TypeError):
+            return value
+
+    def _normalize_tz_in_str(s: str) -> str:
+        for full, short in _TZ_FULL_TO_SHORT.items():
+            if full in s:
+                s = s.replace(full, short)
+        return s
+
+    if _depth > 20:
+        return data
+    if isinstance(data, dict):
+        result = {}
+        for k, v in data.items():
+            if k in _LEGACY_TS_KEYS:
+                continue
+            result[k] = _sanitize_for_report(v, _depth + 1)
+        return result
+    if isinstance(data, list):
+        return [_sanitize_for_report(item, _depth + 1) for item in data]
+    if isinstance(data, str):
+        s = data
+        if _PROJECT_ROOT_STR and _PROJECT_ROOT_STR in s:
+            s = _clean_path(s)
+        # Normalize any full timezone names left in string values.
+        s = _normalize_tz_in_str(s)
+        return s
+    return data
 
 
 def _section(title: str) -> List[Any]:
@@ -461,13 +621,38 @@ def generate_comprehensive_report(
     signal_report_path: Path,
     fusion_report_path: Path,
     output_path: Path,
+    segment_analysis: Optional[dict] = None,
 ) -> Path:
-    """Generate a multi-page PDF combining all available forensic evidence."""
-    audio_path = Path(audio_path)
+    """Generate a multi-page PDF combining all available forensic evidence.
+
+    Parameters
+    ----------
+    audio_path:
+        The analysed audio file.
+    metadata_report_path / signal_report_path / fusion_report_path:
+        JSON report files produced by the pipeline.
+    output_path:
+        Destination PDF path.
+    segment_analysis:
+        Optional dict returned by ``run_segment_analysis()``.  When provided,
+        a dedicated *Segment-Level Detection* section is added to the report.
+        When ``None``, the function auto-loads ``results/segment_report.json``
+        if it exists alongside the other report files.
+    """
+    audio_path    = Path(audio_path)
     metadata_path = Path(metadata_report_path)
-    signal_path = Path(signal_report_path)
-    fusion_path = Path(fusion_report_path)
-    output_path = Path(output_path)
+    signal_path   = Path(signal_report_path)
+    fusion_path   = Path(fusion_report_path)
+    output_path   = Path(output_path)
+
+    # Auto-load segment results when the caller didn't supply them directly.
+    if segment_analysis is None:
+        seg_path = fusion_path.parent / "segment_report.json"
+        if seg_path.is_file():
+            try:
+                segment_analysis = json.loads(seg_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                segment_analysis = None
     metadata = _load_json(metadata_path)
     signal = _load_json(signal_path)
     fusion = _load_json(fusion_path)
@@ -482,7 +667,23 @@ def generate_comprehensive_report(
     )
     story: List[Any] = []
     report_id = generate_report_id()
-    generated = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    # Format the report-generation timestamp with short timezone code.
+    _now = datetime.now().astimezone()
+    _tz_full = _now.strftime("%Z")
+    _TZ_GEN: dict[str, str] = {
+        "India Standard Time": "IST", "Coordinated Universal Time": "UTC",
+        "Greenwich Mean Time": "GMT",  "Eastern Standard Time": "EST",
+        "Eastern Daylight Time": "EDT","Central Standard Time": "CST",
+        "Central Daylight Time": "CDT","Pacific Standard Time": "PST",
+        "Pacific Daylight Time": "PDT",
+    }
+    if _tz_full in _TZ_GEN:
+        _tz_short = _TZ_GEN[_tz_full]
+    elif len(_tz_full) <= 5 and _tz_full.isupper():
+        _tz_short = _tz_full
+    else:
+        _tz_short = "".join(w[0] for w in _tz_full.split() if w) or "LT"
+    generated = _now.strftime(f"%Y-%m-%d %H:%M:%S {_tz_short}")
 
     story.extend([Spacer(1, 0.55 * inch), Paragraph("AUDIOSHIELD FORENSICS", _TITLE_STYLE),
                   Spacer(1, 0.12 * inch), Paragraph("Audio Forensic Analysis Report", _TITLE_STYLE),
@@ -566,25 +767,70 @@ def generate_comprehensive_report(
 
     story.extend(_section("2. File Information"))
     file_rows = [["Property", "Value"]]
-    # Extract MD5 from raw_exiftool if available
-    raw_exif = metadata_summary.get("raw_exiftool", {})
-    md5_hash = (
-        raw_exif.get("MD5Signature") or raw_exif.get("MD5") or raw_exif.get("md5")
-        if isinstance(raw_exif, dict) else None
-    )
+    # ── Hashes — computed from raw file bytes by extractor ───────────────
+    md5_hash    = _value(metadata_summary, "md5_hash",    default=None)
+    sha256_hash = _value(metadata_summary, "sha256_hash", default=None)
+    # Fallback: try raw_exiftool for MD5 (legacy path before utils.hashing)
+    if not md5_hash:
+        raw_exif = metadata_summary.get("raw_exiftool", {})
+        if isinstance(raw_exif, dict):
+            md5_hash = raw_exif.get("MD5Signature") or raw_exif.get("MD5") or raw_exif.get("md5")
+
+    # ── Upload Date (F1) ─────────────────────────────────────────────────
+    # Use the pre-formatted string from the extractor (YYYY-MM-DD HH:MM:SS TZ).
+    # Fall back to computing it here if the extractor field is missing.
+    # Also normalize legacy "India Standard Time" full names → short codes in
+    # case the metadata JSON was written by an older version of the extractor.
+    _TZ_FULL_TO_SHORT = {
+        "India Standard Time": "IST", "Coordinated Universal Time": "UTC",
+        "Greenwich Mean Time": "GMT",  "Eastern Standard Time": "EST",
+        "Eastern Daylight Time": "EDT","Central Standard Time": "CST",
+        "Central Daylight Time": "CDT","Pacific Standard Time": "PST",
+        "Pacific Daylight Time": "PDT",
+    }
+    def _normalize_tz(ts: str) -> str:
+        """Replace a full Windows timezone name at the end of a timestamp string."""
+        for full, short in _TZ_FULL_TO_SHORT.items():
+            if ts.endswith(" " + full):
+                return ts[: -(len(full))] + short
+        return ts
+
+    upload_date = _value(metadata_summary, "upload_time", default=None)
+    if upload_date:
+        upload_date = _normalize_tz(str(upload_date))
+    else:
+        try:
+            local_dt = datetime.fromtimestamp(audio_path.stat().st_mtime)
+            tz_full  = local_dt.astimezone().strftime("%Z")
+            tz_short = _TZ_FULL_TO_SHORT.get(tz_full)
+            if not tz_short:
+                if len(tz_full) <= 5 and tz_full.isupper():
+                    tz_short = tz_full
+                else:
+                    tz_short = "".join(w[0] for w in tz_full.split() if w) or "LT"
+            upload_date = local_dt.strftime(f"%Y-%m-%d %H:%M:%S {tz_short}")
+        except OSError:
+            upload_date = "Not available"
+
     info = {
-        "File name":        _value(metadata_summary, "file_name", default=audio_path.name),
-        "File size (bytes)": _value(metadata_summary, "file_size",
-                                    default=audio_path.stat().st_size if audio_path.exists() else "Not available"),
-        "MD5 hash":         md5_hash if md5_hash else "Not available",
-        "Format":           _value(metadata_summary, "format"),
+        "File name":          _value(metadata_summary, "file_name", default=audio_path.name),
+        "Audio source":       "Microphone Recording" if audio_path.stem == "live_recording"
+                              else "Uploaded File",
+        "File size (bytes)":  _value(metadata_summary, "file_size",
+                                     default=audio_path.stat().st_size if audio_path.exists() else "Not available"),
+        "MD5 hash":           md5_hash    if md5_hash    else "Not available",
+        "SHA-256 hash":       sha256_hash if sha256_hash else "Not available",
+        "Format":             _value(metadata_summary, "format"),
         "Duration (seconds)": _value(metadata_summary, "duration"),
-        "Sample rate (Hz)": _value(metadata_summary, "sample_rate"),
-        "Channels":         _value(metadata_summary, "channels"),
-        "Codec":            _value(metadata_summary, "codec"),
+        "Sample rate (Hz)":   _value(metadata_summary, "sample_rate"),
+        "Channels":           _value(metadata_summary, "channels"),
+        "Codec":              _value(metadata_summary, "codec"),
         "Bitrate (bits/sec)": _value(metadata_summary, "bitrate"),
-        "Creation time":    _value(metadata_summary, "creation_time"),
-        "Modification time": _value(metadata_summary, "modification_time"),
+        "Upload Date":        upload_date,
+        "Encoder":            _value(metadata_summary, "encoder"),
+        "Device Info":        _value(metadata_summary, "device_info"),
+        "Software":           _value(metadata_summary, "software"),
+        "Comments":           _value(metadata_summary, "comments"),
     }
     file_rows.extend([[key, value] for key, value in info.items()])
     story.append(_table(file_rows, [2.15 * inch, 4.8 * inch]))
@@ -598,7 +844,61 @@ def generate_comprehensive_report(
     story.extend(_section("6. Evidence Fusion"))
     story.extend(format_fusion_section(fusion))
 
-    story.extend(_section("7. Visual Analysis"))
+    story.extend(_section("7. Segment-Level Detection"))
+    if segment_analysis:
+        story.append(Paragraph(
+            "<i>Segment-level verdict reflects the AASIST segment analysis only and is presented "
+            "separately from the overall evidence-fusion assessment. The overall risk and assessment "
+            "shown in Section 1 are determined by the full multi-source evidence fusion (AI + Metadata "
+            "+ Signal) and may differ from the segment-level verdict.</i>",
+            _SMALL_STYLE,
+        ))
+        story.append(Spacer(1, 6))
+        seg_summary_rows = [
+            ["Parameter", "Value"],
+            ["Overall verdict",        segment_analysis.get("overall_verdict", "N/A").upper()],
+            ["Total duration (s)",     str(round(segment_analysis.get("total_duration", 0), 2))],
+            ["Window size (s)",        str(segment_analysis.get("window_seconds", 1.0))],
+            ["Hop size (s)",           str(segment_analysis.get("hop_seconds", 1.0))],
+            ["Detection threshold",    str(round(segment_analysis.get("threshold", 0.819), 3))],
+            ["Total segments",         str(len(segment_analysis.get("segments", [])))],
+            ["Suspicious segments",    str(len(segment_analysis.get("suspicious_segments", [])))],
+        ]
+        story.append(_table(seg_summary_rows, [2.5 * inch, 4.45 * inch]))
+        story.append(Spacer(1, 8))
+
+        # Per-segment table
+        seg_rows = [["Start (s)", "End (s)", "Spoof Probability", "Verdict"]]
+        for seg in segment_analysis.get("segments", []):
+            prob_str = f"{seg['spoof_probability'] * 100:.1f}%"
+            seg_rows.append([
+                str(seg["start"]),
+                str(seg["end"]),
+                prob_str,
+                seg["verdict"].upper(),
+            ])
+        if len(seg_rows) > 1:
+            story.append(Paragraph("Segment results", _SUBSECTION_STYLE))
+            story.append(_table(seg_rows, [1.1 * inch, 1.1 * inch, 1.8 * inch, 1.3 * inch]))
+
+        # Timeline visualization
+        viz_path_str = segment_analysis.get("visualization_path")
+        if viz_path_str:
+            viz_path_obj = _resolve_plot(viz_path_str, [Path("results") / "signal_plots", Path("results"), Path.cwd()])
+            if viz_path_obj:
+                story.append(Spacer(1, 8))
+                img = Image(str(viz_path_obj), width=5.9 * inch, height=2.5 * inch)
+                img.hAlign = "CENTER"
+                story.extend([img,
+                               Paragraph("Segment-level spoof probability over time. "
+                                         "Red bars = SPOOF; green bars = BONAFIDE; "
+                                         "amber dashed line = detection threshold.",
+                                         _CENTER_STYLE),
+                               Spacer(1, 6)])
+    else:
+        story.append(Paragraph("Segment-level detection was not performed for this file.", _BODY_STYLE))
+
+    story.extend(_section("8. Visual Analysis"))
     plot_values = signal.get("plots", [])
     plot_names = [("Waveform", "Time-domain waveform"), ("Spectrogram", "Frequency content over time"),
                   ("MFCC", "Mel-frequency cepstral coefficients"), ("Pitch contour", "Estimated fundamental frequency")]
@@ -613,13 +913,13 @@ def generate_comprehensive_report(
         else:
             story.append(Paragraph(f"{name}: plot not available.", _BODY_STYLE))
 
-    story.extend(_section("8. Conclusion"))
+    story.extend(_section("9. Conclusion"))
     story.append(Paragraph(f"The combined evidence indicates an overall assessment of <b>{_text(assessment)}</b> "
                            f"with a reported risk level of <b>{_text(risk)}</b>. These are indicators from the "
                            "available reports and should be interpreted with the original audio and chain of custody.",
                            _BODY_STYLE))
 
-    story.extend(_section("9. Limitations"))
+    story.extend(_section("10. Limitations"))
     limitations = [
         "Training data: All models were trained exclusively on ASVspoof 2019 LA, which contains English-language "
         "speech produced by 19 text-to-speech and voice-conversion systems. Generalisation to other languages, "
@@ -642,7 +942,7 @@ def generate_comprehensive_report(
         story.append(Paragraph(f"• {lim}", _BULLET_STYLE))
     story.append(Spacer(1, 6))
 
-    story.extend(_section("10. Methodology"))
+    story.extend(_section("11. Methodology"))
     story.append(Paragraph(
         "The AudioShield pipeline combines three independent AI classifiers with metadata and "
         "signal analysis, then fuses the evidence using a rule-based risk-scoring engine.",
@@ -691,16 +991,16 @@ def generate_comprehensive_report(
         "seen during threshold tuning, ensuring honest out-of-sample performance estimates.",
         _SMALL_STYLE))
 
-    story.extend(_section("11. Appendix"))
+    story.extend(_section("12. Appendix"))
     story.append(Paragraph("Raw AI evaluation results", _SUBSECTION_STYLE))
     story.append(Preformatted(
-        json.dumps({model: values["raw"] for model, values in ai_evaluations.items()}, indent=2),
+        json.dumps(_sanitize_for_report({model: values["raw"] for model, values in ai_evaluations.items()}), indent=2),
         _SMALL_STYLE,
     ))
     story.append(Paragraph("Raw metadata report", _SUBSECTION_STYLE))
-    story.append(Preformatted(json.dumps(metadata, indent=2), _SMALL_STYLE))
+    story.append(Preformatted(json.dumps(_sanitize_for_report(metadata), indent=2), _SMALL_STYLE))
     story.append(Paragraph("Raw signal report", _SUBSECTION_STYLE))
-    story.append(Preformatted(json.dumps(signal, indent=2), _SMALL_STYLE))
+    story.append(Preformatted(json.dumps(_sanitize_for_report(signal), indent=2), _SMALL_STYLE))
     story.append(Paragraph("Methodology note", _SUBSECTION_STYLE))
     story.append(Paragraph("See Section 10 (Methodology) for a full description of each pipeline component, "
                            "the feature extraction approach, and the threshold selection procedure. "

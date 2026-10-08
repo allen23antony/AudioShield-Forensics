@@ -1,0 +1,113 @@
+{
+  "total_duration": 16.26,
+  "window_seconds": 1.0,
+  "hop_seconds": 1.0,
+  "threshold": 0.8189939028042915,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.0,
+      "spoof_probability": 0.1831,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 1.0,
+      "end": 2.0,
+      "spoof_probability": 0.1866,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 2.0,
+      "end": 3.0,
+      "spoof_probability": 0.1922,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 3.0,
+      "end": 4.0,
+      "spoof_probability": 0.1881,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 4.0,
+      "end": 5.0,
+      "spoof_probability": 0.1895,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 5.0,
+      "end": 6.0,
+      "spoof_probability": 0.2796,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 6.0,
+      "end": 7.0,
+      "spoof_probability": 0.2374,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 7.0,
+      "end": 8.0,
+      "spoof_probability": 0.2045,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 8.0,
+      "end": 9.0,
+      "spoof_probability": 0.2117,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 9.0,
+      "end": 10.0,
+      "spoof_probability": 0.185,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 10.0,
+      "end": 11.0,
+      "spoof_probability": 0.1837,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 11.0,
+      "end": 12.0,
+      "spoof_probability": 0.1839,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 12.0,
+      "end": 13.0,
+      "spoof_probability": 0.1897,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 13.0,
+      "end": 14.0,
+      "spoof_probability": 0.2394,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 14.0,
+      "end": 15.0,
+      "spoof_probability": 0.1978,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 15.0,
+      "end": 16.0,
+      "spoof_probability": 0.2527,
+      "verdict": "bonafide"
+    },
+    {
+      "start": 16.0,
+      "end": 16.26,
+      "spoof_probability": 0.2098,
+      "verdict": "bonafide"
+    }
+  ],
+  "overall_verdict": "bonafide",
+  "suspicious_segments": [],
+  "visualization_path": "C:\\Users\\allen\\AudioShield-Forensics\\results\\signal_plots\\segment_timeline.png"
+}

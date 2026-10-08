@@ -1,28 +1,28 @@
 {
   "cnn": {
     "label": "spoof",
-    "confidence": 0.9993817806243896,
-    "probability": 0.9993817806243896
+    "confidence": 1.0,
+    "probability": 1.0
   },
   "svm": {
     "label": "spoof",
-    "confidence": 0.9921225766357823,
-    "probability": 0.9921225766357823
+    "confidence": 0.9909325707487312,
+    "probability": 0.9909325707487312
   },
   "aasist": {
     "label": "bonafide",
-    "confidence": 0.7787631899118423,
-    "probability": 0.22123681008815765,
+    "confidence": 0.8832983002066612,
+    "probability": 0.11670169979333878,
     "threshold": 0.8189939028042915
   },
   "consensus": {
     "label": "spoof",
-    "confidence": 0.9234225157240048,
+    "confidence": 0.9580769569851308,
     "agreement": 0.6666666666666666
   },
   "ai_risk": "high",
   "device": "cuda",
-  "timestamp": "2026-09-23T17:26:12.375427+00:00",
+  "timestamp": "2026-10-08T18:01:35.410102+00:00",
   "model_versions": {
     "cnn": "cnn_final_best",
     "svm": "svm_model",

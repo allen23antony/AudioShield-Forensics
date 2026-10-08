@@ -394,6 +394,50 @@
     .disagree-title { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: .35rem; }
     .disagree-detail { font-size: .78rem; color: var(--text-muted); line-height: 1.55; }
 
+    /* Model disagreement dedicated card */
+    .disagree-card {
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.35);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .disagree-card.agree {
+      background: rgba(16,185,129,.06);
+      border-color: rgba(16,185,129,.35);
+    }
+    .disagree-card-title {
+      font-size: .92rem; font-weight: 700; color: var(--text);
+      margin-bottom: .6rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .disagree-vote-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: .6rem; margin-bottom: .75rem;
+    }
+    .disagree-vote-item {
+      background: rgba(255,255,255,.03); border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem .8rem;
+    }
+    .disagree-vote-model { font-size: .68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .2rem; }
+    .disagree-vote-verdict { font-size: .85rem; font-weight: 700; }
+    .disagree-vote-verdict.spoof   { color: var(--high); }
+    .disagree-vote-verdict.bonafide { color: var(--low);  }
+    .disagree-stats { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: .65rem; }
+    .disagree-stat { font-size: .78rem; color: var(--text-muted); }
+    .disagree-stat strong { color: var(--text); }
+    .disagree-note {
+      font-size: .76rem; color: var(--text-muted); line-height: 1.55;
+      border-top: 1px solid var(--border); padding-top: .55rem; margin-top: .55rem;
+    }
+    .disagree-seg-row {
+      margin-top: .5rem; padding: .45rem .7rem;
+      background: rgba(255,255,255,.03); border: 1px solid var(--border);
+      border-radius: 6px; font-size: .78rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    .disagree-seg-row strong { color: var(--text); }
+
     /* ── Model comparison chart ─────────────────────────────────────────── */
     .chart-wrap { margin-top: .5rem; overflow-x: auto; }
     .chart-group { margin-bottom: 1rem; }
@@ -470,7 +514,7 @@
     .aasist-gauge-fill.spoof    { background: var(--high); }
     .aasist-thresh-marker { position:absolute; top:-4px; width:2px; height:16px; background:#F59E0B; border-radius:1px; transform:translateX(-50%); }
     .aasist-thresh-marker::after { content:attr(data-label); position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:.6rem; color:#F59E0B; white-space:nowrap; font-weight:600; }
-    .aasist-gauge-labels { display:flex; justify-content:space-between; font-size:.68rem; color:var(--text-muted); }
+    .aasist-gauge-labels { display:flex; justify-content:space-between; font-size:.68rem; color:var(--text-muted); padding: 0 1px; }
     .aasist-detail-row { display:flex; gap:1.25rem; flex-wrap:wrap; margin-top:.35rem; }
     .aasist-detail-row span { font-size:.78rem; color:var(--text-muted); }
     .aasist-detail-row strong { color: var(--text); }
@@ -551,7 +595,101 @@
     footer { background:rgba(15,23,42,.9); border-top:1px solid var(--border); text-align:center; padding:1.2rem 2rem; font-size:.75rem; color:var(--text-muted); letter-spacing:.04em; }
     footer strong { color: var(--teal); }
 
-    /* ── Responsive ─────────────────────────────────────────────────────── */
+    /* ── Hash display + copy button ────────────────────────────────────── */
+    .hash-row { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+    .hash-value {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--teal);
+      word-break: break-all;
+      flex: 1;
+      min-width: 0;
+    }
+    .btn-copy {
+      flex-shrink: 0;
+      background: rgba(0,180,216,.12);
+      border: 1px solid rgba(0,180,216,.3);
+      color: var(--teal);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: .68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { background: rgba(0,180,216,.25); }
+    .btn-copy.copied { background: rgba(16,185,129,.2); color: var(--low); border-color: var(--low); }
+
+    /* ── Mic / recording ────────────────────────────────────────────────── */
+    .btn-record {
+      width: 100%; padding: .85rem; margin-top: .6rem;
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.4);
+      color: var(--high);
+      border-radius: var(--radius);
+      font-size: .9rem; font-weight: 700; letter-spacing: .07em;
+      cursor: pointer; transition: all .22s ease;
+      display: flex; align-items: center; justify-content: center; gap: .55rem;
+    }
+    .btn-record:hover:not(:disabled) { background: rgba(239,68,68,.22); }
+    .btn-record:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-record.recording {
+      background: rgba(239,68,68,.22);
+      border-color: var(--high);
+      animation: rec-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes rec-pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+    /* Recording guidance tip */
+    .rec-guidance {
+      margin-top: .6rem;
+      padding: .65rem .85rem;
+      background: rgba(0,180,216,.05);
+      border: 1px solid rgba(0,180,216,.15);
+      border-radius: 8px;
+      font-size: .75rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+    .rec-guidance strong { color: var(--text); display: block; margin-bottom: .25rem; font-size: .78rem; }
+    .rec-guidance ul { margin: .25rem 0 .3rem 1rem; }
+    .rec-guidance li { margin-bottom: .1rem; }
+    .rec-guidance .rec-note { margin-top: .35rem; font-style: italic; color: var(--text-muted); font-size: .72rem; }
+
+    /* Processing state label for recording */
+    .rec-processing { color: var(--teal); font-size: .82rem; font-style: italic; margin-top: .4rem; text-align: center; }
+    .btn-stop-record {
+      width: 100%; padding: .75rem; margin-top: .4rem;
+      background: rgba(239,68,68,.85);
+      border: 1px solid var(--high);
+      color: #fff;
+      border-radius: var(--radius);
+      font-size: .9rem; font-weight: 700; letter-spacing: .07em;
+      cursor: pointer; transition: all .2s ease;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-stop-record:hover { background: var(--high); }
+    .rec-timer { font-variant-numeric: tabular-nums; }
+
+    /* ── Segment results card ───────────────────────────────────────────── */
+    .segment-verdict {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .3rem .85rem; border-radius: 20px;
+      font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+      margin-bottom: .75rem;
+    }
+    .segment-verdict.spoof    { background: var(--high-bg);   color: var(--high);   border: 1px solid var(--high);   }
+    .segment-verdict.bonafide { background: var(--low-bg);    color: var(--low);    border: 1px solid var(--low);    }
+    .segment-verdict.unknown  { background: rgba(148,163,184,.12); color: var(--text-muted); border: 1px solid var(--border); }
+    .seg-table { width:100%; border-collapse:collapse; font-size:.82rem; margin-top:.75rem; }
+    .seg-table th { text-align:left; padding:.4rem .6rem; font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); border-bottom:1px solid var(--border); }
+    .seg-table td { padding:.5rem .6rem; border-bottom:1px solid rgba(255,255,255,.04); }
+    .seg-table tr:last-child td { border-bottom:none; }
+    .seg-table .spoof-row td { background: rgba(239,68,68,.05); }
+    .seg-stats { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:.75rem; }
+    .seg-stat { font-size:.82rem; color:var(--text-muted); }
+    .seg-stat strong { color:var(--text); }
     @media (max-width: 768px) {
       main { padding: 1.5rem 1rem 3rem; }
       .hero h2 { font-size: 1.75rem; }
@@ -639,6 +777,26 @@
         <span>🔍</span>
         <span id="btn-analyze-text">ANALYZE AUDIO</span>
       </button>
+
+      <!-- F2: Microphone recording -->
+      <button class="btn-record" id="btn-record" aria-label="Record voice from microphone">
+        <span id="rec-icon">🎤</span>
+        <span id="rec-label">RECORD VOICE</span>
+      </button>
+      <button class="btn-stop-record hidden" id="btn-stop-record" aria-label="Stop recording">
+        <span>■</span> Stop Recording
+      </button>
+      <p class="rec-processing hidden" id="rec-processing-msg">⏳ Processing recording…</p>
+      <div class="rec-guidance">
+        <strong>🎤 Microphone Recording</strong>
+        For best results:
+        <ul>
+          <li>Speak clearly for 5–15 seconds</li>
+          <li>Use a reasonably quiet environment</li>
+          <li>Keep the microphone at a consistent distance</li>
+        </ul>
+        <span class="rec-note">Note: Microphone recordings may differ acoustically from dataset recordings. Model disagreement should be interpreted with caution.</span>
+      </div>
     </div>
   </section>
 
@@ -733,6 +891,10 @@
         <span class="risk-badge medium" id="metadata-risk-badge" style="margin-left:auto;">—</span>
       </div>
       <div id="metadata-findings"></div>
+      <p style="font-size:.72rem;color:var(--text-muted);margin-top:.6rem;font-style:italic;">
+        System timestamps reflect when the uploaded file was written to the server.
+        Original source timestamps are not preserved during normal browser upload.
+      </p>
     </div>
 
     <!-- Signal -->
@@ -744,10 +906,19 @@
       <div id="signal-findings"></div>
     </div>
 
+    <!-- F11: Segment-Level Detection -->
+    <div class="card hidden" id="card-segment">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🔬</span>
+        <h3>Segment-Level Detection</h3>
+        <span id="seg-overall-badge" class="segment-verdict unknown" style="margin-left:auto;">—</span>
+      </div>
+      <div id="segment-content"></div>
+    </div>
+
     <!-- Fusion -->
     <div class="card">
-      <div class="card-header"><span class="card-icon" aria-hidden="true">⚗️</span><h3>Evidence Fusion</h3></div>
-      <div class="source-grid" id="fusion-sources"></div>
+      <div class="card-header"><span class="card-icon" aria-hidden="true">⚗️</span><h3>Evidence Fusion</h3></div>      <div class="source-grid" id="fusion-sources"></div>
       <div id="evidence-summary" class="evidence-summary"></div>
       <div style="margin-top:.85rem;">
         <div class="rec-label">Recommendation</div>
@@ -790,6 +961,7 @@
 const state = {
   file: null, fileId: null, originalName: null, analysisResult: null,
   stageTimings: {},   // stage → elapsed ms
+  source: 'upload',  // 'upload' | 'mic' — set when file is selected
 };
 
 /* ── DOM refs ───────────────────────────────────────────────────────────── */
@@ -923,6 +1095,9 @@ function handleFile(f) {
   state.file = f;
   state.fileId = null;
   state.originalName = f.name;
+  // Source is set explicitly by the caller (mic vs upload).
+  // Default to 'upload' here; setupMicRecorder overrides it to 'mic'.
+  if (state.source !== 'mic') state.source = 'upload';
   fiName.textContent = f.name;
   fiSize.textContent = fmt(f.size);
   fileInfoBar.classList.remove('hidden');
@@ -945,7 +1120,7 @@ dropZone.addEventListener('drop', e => {
 });
 dropZone.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); fileInput.click(); } });
 fiClear.addEventListener('click', () => {
-  state.file = null; state.fileId = null;
+  state.file = null; state.fileId = null; state.source = 'upload';
   fileInput.value = '';
   fileInfoBar.classList.add('hidden');
   audioPlayerWrap.classList.add('hidden');
@@ -1037,36 +1212,78 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* ── Render all results ──────────────────────────────────────────────────── */
 function renderResults(data) {
-  const ai     = data.ai_results       || {};
-  const meta   = data.metadata_results || {};
-  const signal = data.signal_results   || {};
-  const fusion = data.fusion_results   || {};
+  const ai      = data.ai_results       || {};
+  const meta    = data.metadata_results || {};
+  const signal  = data.signal_results   || {};
+  const fusion  = data.fusion_results   || {};
+  const segment = data.segment_results  || null;
+
   renderFileInfo(data, ai, meta);
   renderRiskBanner(fusion, ai);
   renderAITable(ai);
   renderModelChart();
   renderExplainability(ai);
-  renderDisagreement(ai);
+  renderDisagreement(ai, segment);
   renderMetadata(meta, fusion);
   renderSignal(signal, fusion);
+  renderSegment(segment);
   renderFusion(fusion);
   renderPlots();
 }
 
-/* File info */
+/* ── File Info (F9: SHA-256 + copy buttons) ─────────────────────────────── */
 function renderFileInfo(data, ai, meta) {
   const metadata = meta.metadata || {};
+  const md5    = metadata.md5_hash    || null;
+  const sha256 = metadata.sha256_hash || null;
+
+  function hashRow(label, value) {
+    if (!value || value === 'Not available') {
+      return `<div class="info-item">
+        <div class="info-label">${label}</div>
+        <div class="info-value" style="font-family:var(--mono);font-size:.72rem;color:var(--text-muted);">Not available</div>
+      </div>`;
+    }
+    const short = value.slice(0, 12) + '…' + value.slice(-6);
+    return `<div class="info-item" style="grid-column:span 2;">
+      <div class="info-label">${label}</div>
+      <div class="hash-row">
+        <span class="hash-value" title="${value}">${short}</span>
+        <button class="btn-copy" onclick="copyHash(this,'${value}')" aria-label="Copy ${label}">Copy</button>
+      </div>
+    </div>`;
+  }
+
+  // Source: derived from state.source set at file-selection time.
+  const sourceLabel = state.source === 'mic'
+    ? '🎤 Microphone Recording'
+    : '📁 Uploaded File';
+
   const items = [
+    { label:'Source',      value: sourceLabel },
     { label:'File Name',   value:safe(state.originalName) },
     { label:'File ID',     value:safe(state.fileId ? state.fileId.slice(0,8)+'…' : null) },
     { label:'Duration',    value:safe(metadata.duration ? parseFloat(metadata.duration).toFixed(2)+' s' : null) },
     { label:'Sample Rate', value:safe(metadata.sample_rate ? metadata.sample_rate+' Hz' : null) },
     { label:'Channels',    value:safe(metadata.channels) },
-    { label:'Bit Depth',   value:safe(metadata.bit_depth) },
     { label:'Format',      value:safe(metadata.format || metadata.codec) },
+    { label:'Upload Date', value:safe(metadata.upload_time) },
     { label:'Device',      value:safe(ai.device) },
   ].filter(i => i.value !== '—');
-  $('file-info-grid').innerHTML = items.map(i => `<div class="info-item"><div class="info-label">${i.label}</div><div class="info-value">${i.value}</div></div>`).join('');
+
+  const grid = $('file-info-grid');
+  grid.innerHTML =
+    items.map(i => `<div class="info-item"><div class="info-label">${i.label}</div><div class="info-value">${i.value}</div></div>`).join('') +
+    hashRow('MD5 Hash', md5) +
+    hashRow('SHA-256 Hash', sha256);
+}
+
+function copyHash(btn, value) {
+  navigator.clipboard.writeText(value).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => { toast('Copy failed — use title/tooltip to copy manually.', 'warning'); });
 }
 
 /* Risk banner + circular confidence gauge */
@@ -1078,13 +1295,28 @@ function renderRiskBanner(fusion, ai) {
   const confidence = parseFloat(consensus.confidence || 0);
   const confPct    = isNaN(confidence) ? 0 : confidence * 100;
 
+  // Detect model disagreement to decide how to present confidence.
+  const cnnLabel    = (ai.cnn    || {}).label || '';
+  const svmLabel    = (ai.svm    || {}).label || '';
+  const aasistLabel = (ai.aasist || {}).label || '';
+  const modelLabels = [cnnLabel, svmLabel, aasistLabel].filter(l => l === 'spoof' || l === 'bonafide');
+  const modelsDisagree = new Set(modelLabels).size > 1;
+
   $('risk-banner').className  = `risk-banner ${level}`;
   $('risk-shield').textContent = riskShield(level);
   $('risk-label').textContent  = level.toUpperCase()+' RISK';
   $('risk-assessment-text').textContent = formatAssessment(assessment);
   $('risk-assessment-badge').textContent = formatAssessment(assessment);
   $('conf-bar').style.width   = confPct.toFixed(1)+'%';
-  $('conf-label').textContent = `Confidence: ${round2(confidence)} · Agreement: ${round2(consensus.agreement)}`;
+
+  if (modelsDisagree) {
+    const nS = modelLabels.filter(l => l === 'spoof').length;
+    const nB = modelLabels.filter(l => l === 'bonafide').length;
+    $('conf-label').textContent =
+      `⚠ Models disagree — Vote: ${nS} SPOOF / ${nB} BONAFIDE · Agreement: ${round2(consensus.agreement)}`;
+  } else {
+    $('conf-label').textContent = `Confidence: ${round2(confidence)} · Agreement: ${round2(consensus.agreement)}`;
+  }
 
   /* Circular SVG gauge */
   const circumference = 2 * Math.PI * 28; // r=28
@@ -1129,7 +1361,7 @@ function renderAITable(ai) {
             <div class="aasist-gauge-fill ${gaugeClass}" style="width:${probPct.toFixed(1)}%"></div>
             <div class="aasist-thresh-marker" style="left:${threshPct}%" data-label="T=${threshPct}%"></div>
           </div>
-          <div class="aasist-gauge-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+          <div class="aasist-gauge-labels"><span style="text-align:left">0%</span><span style="text-align:center">50%</span><span style="text-align:right">100%</span></div>
           <div class="aasist-detail-row">
             <span>Spoof Prob: <strong>${probPct.toFixed(1)}%</strong></span>
             <span>Threshold: <strong>${threshPct}%</strong></span>
@@ -1145,14 +1377,21 @@ function renderAITable(ai) {
       <td><div class="prob-bar-wrap"><div class="prob-bar-bg"><div class="prob-bar-inner" style="width:${probPct.toFixed(1)}%;background:${probColor}"></div></div><span class="prob-val">${isNaN(prob)?'—':probPct.toFixed(1)+'%'}</span></div></td>
     </tr>`;
   }).join('');
-  /* Consensus */
-  const con = ai.consensus || {};
-  const clc = labelClass(con.label);
+  /* Consensus — show vote counts and agreement instead of averaged confidence */
+  const con     = ai.consensus || {};
+  const clc     = labelClass(con.label);
+  const nModels = 3;
+  const agrPct  = parseFloat(con.agreement || 0);
+  const nVotes  = Math.round(agrPct * nModels);  // models on the winning side
+  const voteStr = `${nVotes} / ${nModels} models`;
+  const agrStr  = round2(con.agreement);
+  // Arithmetic mean of decision strengths — labeled explicitly so it isn't read as spoof probability
+  const meanStr = round2(parseFloat(con.confidence || 0));
   rows += `<tr class="consensus-row">
-    <td><span class="model-name"><span class="model-badge badge-ensemble">Ensemble</span> Consensus</span></td>
+    <td><span class="model-name"><span class="model-badge badge-ensemble">Ensemble</span> Decision</span></td>
     <td><span class="label-pill ${clc}">${cap(con.label)||'—'}</span></td>
-    <td>${round2(con.confidence)}</td>
-    <td><span style="color:var(--text-muted);font-size:.78rem;">Agreement: ${round2(con.agreement)}</span></td>
+    <td style="font-size:.78rem"><div style="font-weight:600">${voteStr}</div><div style="color:var(--text-muted);margin-top:2px">Agreement: ${agrStr}</div></td>
+    <td style="font-size:.72rem;color:var(--text-muted)" title="Arithmetic mean of per-model decision strengths — not a spoof probability">Mean strength: ${meanStr}</td>
   </tr>`;
   tbody.innerHTML = rows;
 }
@@ -1243,34 +1482,106 @@ function renderExplainability(ai) {
   }).join('');
 }
 
-/* Model disagreement panel */
-function renderDisagreement(ai) {
-  const labels = { cnn: (ai.cnn||{}).label, svm: (ai.svm||{}).label, aasist: (ai.aasist||{}).label };
-  const valid  = Object.entries(labels).filter(([,v]) => v === 'spoof' || v === 'bonafide');
-  if (valid.length === 0) { $('disagree-panel').innerHTML = ''; return; }
+/* ── Model Disagreement Card ────────────────────────────────────────────── */
+function renderDisagreement(ai, segment) {
+  const panel = $('disagree-panel');
+  const models = [
+    { key: 'cnn',    name: 'CNN'    },
+    { key: 'svm',    name: 'SVM'    },
+    { key: 'aasist', name: 'AASIST' },
+  ];
+  const valid = models.filter(m => {
+    const lbl = ((ai[m.key] || {}).label || '').toLowerCase();
+    return lbl === 'spoof' || lbl === 'bonafide';
+  });
+  if (valid.length === 0) { panel.innerHTML = ''; return; }
 
-  const spoofModels   = valid.filter(([,v]) => v === 'spoof').map(([k]) => k.toUpperCase());
-  const bonafideModels= valid.filter(([,v]) => v === 'bonafide').map(([k]) => k.toUpperCase());
+  const spoofModels    = valid.filter(m => (ai[m.key].label || '').toLowerCase() === 'spoof');
+  const bonafideModels = valid.filter(m => (ai[m.key].label || '').toLowerCase() === 'bonafide');
   const allAgree = spoofModels.length === 0 || bonafideModels.length === 0;
 
-  let title, detail;
   if (allAgree) {
     const verdict = spoofModels.length > 0 ? 'SPOOF' : 'BONAFIDE';
-    title  = `✅ All models agree: ${verdict}`;
-    detail = `CNN, SVM, and AASIST all returned <strong>${verdict}</strong>. High-confidence consensus reduces the probability of a false classification.`;
-  } else {
-    title  = `⚠️ Model disagreement detected`;
-    const sp = spoofModels.join(' & ');
-    const bo = bonafideModels.join(' & ');
-    detail = `<strong>${sp}</strong> voted <strong>SPOOF</strong>; <strong>${bo}</strong> voted <strong>BONAFIDE</strong>. ` +
-             `The ensemble weighted consensus is based on AASIST (primary model, 50% weight) combined with CNN and SVM. ` +
-             `Disagreement may indicate a borderline sample or an attack type outside the training distribution.`;
+    panel.innerHTML = `
+      <div class="disagree-card agree">
+        <div class="disagree-card-title">✅ All models agree: <span class="label-pill ${verdict.toLowerCase()}" style="font-size:.8rem">${verdict}</span></div>
+        <div class="disagree-vote-grid">
+          ${valid.map(m => {
+            const lbl = (ai[m.key].label || '').toLowerCase();
+            return `<div class="disagree-vote-item">
+              <div class="disagree-vote-model">${m.name}</div>
+              <div class="disagree-vote-verdict ${lbl}">${lbl.toUpperCase()}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="disagree-stats">
+          <span class="disagree-stat">Vote: <strong>${valid.length}/${valid.length}</strong></span>
+          <span class="disagree-stat">Agreement: <strong>100%</strong></span>
+        </div>
+      </div>`;
+    return;
   }
 
-  $('disagree-panel').innerHTML = `
-    <div class="disagree-box ${allAgree ? 'agree' : ''}">
-      <div class="disagree-title">${title}</div>
-      <div class="disagree-detail">${detail}</div>
+  // ── Disagreement detected ─────────────────────────────────────────────
+  const nSpoof = spoofModels.length;
+  const nBon   = bonafideModels.length;
+  const total  = valid.length;
+  const agrPct = ((Math.max(nSpoof, nBon) / total) * 100).toFixed(1);
+
+  // Is this the classic domain-shift pattern?
+  const aasistBon = (ai.aasist || {}).label === 'bonafide';
+  const cnnSpoof  = (ai.cnn    || {}).label === 'spoof';
+  const svmSpoof  = (ai.svm    || {}).label === 'spoof';
+  const isDomainShift = aasistBon && cnnSpoof && svmSpoof;
+
+  // Segment evidence row
+  let segHtml = '';
+  if (segment && segment.segments && segment.segments.length > 0) {
+    const segVerdict = (segment.overall_verdict || 'unknown').toLowerCase();
+    const segTotal   = segment.segments.length;
+    const segSusp    = (segment.suspicious_segments || []).length;
+    const thrPct     = segment.threshold ? (segment.threshold * 100).toFixed(1) + '%' : '—';
+    segHtml = `
+      <div class="disagree-seg-row">
+        <span>🔬 Segment AASIST (${segTotal} × 1 s):</span>
+        <span class="label-pill ${segVerdict}" style="font-size:.72rem">${segVerdict.toUpperCase()}</span>
+        <strong>${segSusp} suspicious / ${segTotal}</strong>
+        <span style="color:var(--text-muted)">thr ${thrPct}</span>
+      </div>`;
+  }
+
+  const domainNote = isDomainShift
+    ? `<br><strong>Possible domain shift:</strong> microphone recordings may differ acoustically from the training data (ASVspoof 2019 LA studio speech). This is a possible explanation for the CNN/SVM disagreement with AASIST and should not be treated as proof of a false positive.`
+    : '';
+
+  const spNames  = spoofModels.map(m => m.name).join(' + ');
+  const boNames  = bonafideModels.map(m => m.name).join(' + ');
+  const meanConf = round2(parseFloat((ai.consensus||{}).confidence||0));
+
+  panel.innerHTML = `
+    <div class="disagree-card">
+      <div class="disagree-card-title">⚠️ Model Disagreement Detected</div>
+      <div class="disagree-vote-grid">
+        ${valid.map(m => {
+          const lbl  = (ai[m.key].label || '').toLowerCase();
+          const prob = parseFloat((ai[m.key] || {}).probability);
+          const pStr = isNaN(prob) ? '' : ` (${(prob*100).toFixed(1)}%)`;
+          return `<div class="disagree-vote-item"><div class="disagree-vote-model">${m.name}</div><div class="disagree-vote-verdict ${lbl}">${lbl.toUpperCase()}${pStr}</div></div>`;
+        }).join('')}
+      </div>
+      <div class="disagree-stats">
+        <span class="disagree-stat"><strong>${spNames}:</strong> SPOOF</span>
+        <span class="disagree-stat"><strong>${boNames}:</strong> BONAFIDE</span>
+        <span class="disagree-stat">Vote: <strong>${Math.max(nSpoof,nBon)}/${total}</strong></span>
+        <span class="disagree-stat">Agreement: <strong>${agrPct}%</strong></span>
+      </div>
+      ${segHtml}
+      <div class="disagree-note">
+        Ensemble decision: <strong>${nSpoof > nBon ? 'SPOOF' : 'BONAFIDE'}</strong> by majority vote (${Math.max(nSpoof,nBon)}/${total} models).
+        Mean model decision strength: <strong>${meanConf}</strong> — this is <em>not</em> a spoof probability.
+        ${domainNote}
+        <br><em>Model disagreement → evidence is inconclusive → further verification is recommended.</em>
+      </div>
     </div>`;
 }
 
@@ -1338,27 +1649,89 @@ function renderSignal(signal, fusion) {
   $('signal-findings').innerHTML = html;
 }
 
+/* ── Segment-Level Detection (F11) ──────────────────────────────────────── */
+function renderSegment(seg) {
+  const card    = $('card-segment');
+  const badge   = $('seg-overall-badge');
+  const content = $('segment-content');
+  if (!seg || !seg.segments || seg.segments.length === 0) {
+    card.classList.add('hidden');
+    return;
+  }
+  card.classList.remove('hidden');
+  const verdict = (seg.overall_verdict || 'unknown').toLowerCase();
+  badge.className = `segment-verdict ${verdict}`;
+  badge.textContent = verdict.toUpperCase();
+  const totalSegs = seg.segments.length;
+  const suspCount = (seg.suspicious_segments || []).length;
+  const threshold = seg.threshold ? (seg.threshold * 100).toFixed(1) + '%' : '—';
+  const durStr    = seg.total_duration ? seg.total_duration.toFixed(2) + ' s' : '—';
+  let html = `<div class="seg-stats">
+    <span class="seg-stat">Duration: <strong>${durStr}</strong></span>
+    <span class="seg-stat">Segments: <strong>${totalSegs}</strong></span>
+    <span class="seg-stat">Suspicious: <strong style="color:${suspCount>0?'var(--high)':'var(--low)'}">${suspCount}</strong></span>
+    <span class="seg-stat">Threshold: <strong>${threshold}</strong></span>
+    <span class="seg-stat">Window: <strong>${seg.window_seconds||1} s</strong></span>
+  </div>
+  <div style="overflow-x:auto;"><table class="seg-table" aria-label="Segment results">
+    <thead><tr><th>Start</th><th>End</th><th>Spoof Prob</th><th>Verdict</th></tr></thead><tbody>`;
+  for (const s of seg.segments) {
+    const isSp = s.verdict === 'spoof';
+    const pct  = (s.spoof_probability * 100).toFixed(1) + '%';
+    const vc   = isSp ? 'var(--high)' : 'var(--low)';
+    html += `<tr class="${isSp?'spoof-row':''}">
+      <td>${s.start}s</td><td>${s.end}s</td>
+      <td style="color:${vc};font-weight:600">${pct}</td>
+      <td><span class="label-pill ${s.verdict}">${s.verdict.toUpperCase()}</span></td></tr>`;
+  }
+  html += `</tbody></table></div>
+  <div style="margin-top:1rem;">
+    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.07em;">Timeline</div>
+    <img src="/results/signal_plots/segment_timeline.png?t=${Date.now()}"
+         alt="Segment timeline"
+         style="width:100%;border-radius:8px;border:1px solid var(--border);"
+         onerror="this.style.display='none'"/>
+  </div>`;
+  content.innerHTML = html;
+}
+
 /* Fusion */
 function renderFusion(fusion) {
   const aiEvid   = fusion.ai_evidence       || {};
   const metaEvid = fusion.metadata_evidence || {};
   const sigEvid  = fusion.signal_evidence   || {};
   const core     = fusion.fusion            || {};
+
+  // Build AI sub-label showing consensus + risk clearly
+  const aiConsensus = cap(aiEvid.consensus || '');
+  const aiRisk      = aiEvid.ai_risk || 'medium';
+  const aiExtra     = aiConsensus ? `${aiConsensus} — ${cap(aiRisk)} risk` : cap(aiRisk);
+
   const sources = [
-    { name:'AI Models', risk:aiEvid.ai_risk        || 'medium' },
-    { name:'Metadata',  risk:metaEvid.risk_score   || 'medium' },
-    { name:'Signal',    risk:sigEvid.signal_risk   || 'medium' },
-    { name:'Overall',   risk:core.overall_risk || core.risk_level || 'medium' },
+    { name:'AI Models', risk: aiRisk,                              extra: aiExtra },
+    { name:'Metadata',  risk: metaEvid.risk_score   || 'medium',  extra: null },
+    { name:'Signal',    risk: sigEvid.signal_risk   || 'medium',  extra: null },
+    { name:'Overall',   risk: core.overall_risk || core.risk_level || 'medium', extra: null },
   ];
   $('fusion-sources').innerHTML = sources.map(s => {
     const rc = riskClass(s.risk);
-    return `<div class="source-item"><div class="source-name">${s.name}</div><span class="risk-badge ${rc}">${riskShield(s.risk)} ${cap(s.risk)}</span></div>`;
+    const extraHtml = s.extra
+      ? `<div style="font-size:.68rem;color:var(--text-muted);margin-top:.2rem">${s.extra}</div>`
+      : '';
+    return `<div class="source-item"><div class="source-name">${s.name}</div><span class="risk-badge ${rc}">${riskShield(s.risk)} ${cap(s.risk)}</span>${extraHtml}</div>`;
   }).join('');
+
   const summary = core.evidence_summary || [];
   $('evidence-summary').innerHTML = summary.length
     ? summary.map(l => `<div class="ev-line">${typeof l==='string'?l:JSON.stringify(l)}</div>`).join('')
     : '';
-  $('recommendation').textContent = core.recommendation || fusion.recommendation || '—';
+
+  // Append an inconclusive note when assessment warrants it
+  const assessment = (core.assessment || '').toLowerCase();
+  const baseRec    = core.recommendation || fusion.recommendation || '—';
+  $('recommendation').textContent = (assessment === 'inconclusive' && baseRec !== '—')
+    ? baseRec + ' The overall assessment is inconclusive because the evidence sources are not fully consistent.'
+    : baseRec;
 }
 
 /* Plots */
@@ -1397,7 +1770,7 @@ btnDownload.addEventListener('click', async () => {
 
 /* ── Analyze Another ────────────────────────────────────────────────────── */
 btnNew.addEventListener('click', () => {
-  state.file = null; state.fileId = null; state.originalName = null; state.analysisResult = null;
+  state.file = null; state.fileId = null; state.originalName = null; state.analysisResult = null; state.source = 'upload';
   fileInput.value = '';
   fileInfoBar.classList.add('hidden');
   audioPlayerWrap.classList.add('hidden');
@@ -1409,6 +1782,235 @@ btnNew.addEventListener('click', () => {
   resetStages();
   window.scrollTo({ top:0, behavior:'smooth' });
 });
+
+/* ── Live Microphone Recording (F2) ─────────────────────────────────────── */
+(function setupMicRecorder() {
+  const btnRecord     = $('btn-record');
+  const btnStop       = $('btn-stop-record');
+  const recIcon       = $('rec-icon');
+  const recLabel      = $('rec-label');
+  const recProcMsg    = $('rec-processing-msg');
+  if (!btnRecord || !btnStop) return;
+
+  // ── Explicit state variables ──────────────────────────────────────────
+  let mediaRecorder    = null;
+  let recordingStream  = null;
+  let audioChunks      = [];
+  let recordingTimer   = null;
+  let recordingStartTime = null;
+  let isRecording      = false;
+
+  // ── Timer helpers ─────────────────────────────────────────────────────
+  function fmtTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const h  = Math.floor(totalSec / 3600);
+    const m  = Math.floor((totalSec % 3600) / 60);
+    const s  = totalSec % 60;
+    const mm = m.toString().padStart(2, '0');
+    const ss = s.toString().padStart(2, '0');
+    if (h > 0) return `${h}:${mm}:${ss}`;
+    return `${mm}:${ss}`;
+  }
+
+  function startTimer() {
+    recordingStartTime = Date.now();
+    recLabel.textContent = 'Recording... 00:00';
+    recordingTimer = setInterval(() => {
+      recLabel.textContent = 'Recording... ' + fmtTime(Date.now() - recordingStartTime);
+    }, 500);
+  }
+
+  function stopTimer() {
+    if (recordingTimer) { clearInterval(recordingTimer); recordingTimer = null; }
+    recordingStartTime = null;
+  }
+
+  // ── UI state ──────────────────────────────────────────────────────────
+  function showIdleUI() {
+    recIcon.textContent  = '🎤';
+    recLabel.textContent = 'RECORD VOICE';
+    btnRecord.classList.remove('recording');
+    btnRecord.disabled = false;
+    btnStop.classList.add('hidden');
+    if (recProcMsg) recProcMsg.classList.add('hidden');
+    // Re-enable Analyze only if a file is loaded
+    btnAnalyze.disabled = !state.file;
+  }
+
+  function showRecordingUI() {
+    recIcon.textContent  = '🔴';
+    btnRecord.classList.add('recording');
+    btnRecord.disabled = true;       // can't start a second recording while active
+    btnStop.classList.remove('hidden');
+    if (recProcMsg) recProcMsg.classList.add('hidden');
+    btnAnalyze.disabled = true;      // no analysis while recording
+  }
+
+  function showProcessingUI() {
+    btnStop.classList.add('hidden');
+    btnRecord.disabled = true;
+    btnAnalyze.disabled = true;
+    recIcon.textContent  = '⏳';
+    recLabel.textContent = 'PROCESSING…';
+    if (recProcMsg) recProcMsg.classList.remove('hidden');
+  }
+
+  // ── Cleanup — always safe to call ────────────────────────────────────
+  function resetRecordingState() {
+    stopTimer();
+    if (recordingStream) {
+      recordingStream.getTracks().forEach(t => t.stop());
+      recordingStream = null;
+    }
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      try { mediaRecorder.stop(); } catch (_) {}
+    }
+    mediaRecorder  = null;
+    audioChunks    = [];
+    isRecording    = false;
+    showIdleUI();
+  }
+
+  // ── WAV conversion ────────────────────────────────────────────────────
+  /** Decode any browser Blob format → mono 16 kHz PCM WAV via WebAudio. */
+  async function blobToWav(blob) {
+    const arrayBuf = await blob.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    let decoded;
+    try {
+      decoded = await audioCtx.decodeAudioData(arrayBuf);
+    } finally {
+      try { await audioCtx.close(); } catch (_) {}
+    }
+    // Mix down to mono
+    const samples = decoded.numberOfChannels === 1
+      ? decoded.getChannelData(0)
+      : (() => {
+          const L = decoded.getChannelData(0);
+          const R = decoded.getChannelData(1);
+          return Float32Array.from({ length: L.length }, (_, i) => (L[i] + R[i]) / 2);
+        })();
+    // Write 16-bit mono PCM WAV at 16 000 Hz
+    const numSamples     = samples.length;
+    const bytesPerSample = 2;
+    const buf  = new ArrayBuffer(44 + numSamples * bytesPerSample);
+    const view = new DataView(buf);
+    const ws   = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+    const w32  = (off, v) => view.setUint32(off, v, true);
+    const w16  = (off, v) => view.setUint16(off, v, true);
+    ws(0, 'RIFF');  w32(4, 36 + numSamples * bytesPerSample);
+    ws(8, 'WAVE');  ws(12, 'fmt ');
+    w32(16, 16); w16(20, 1); w16(22, 1);          // PCM, mono
+    w32(24, 16000); w32(28, 16000 * bytesPerSample);
+    w16(32, bytesPerSample); w16(34, 16);           // 16-bit
+    ws(36, 'data'); w32(40, numSamples * bytesPerSample);
+    for (let i = 0; i < numSamples; i++) {
+      const s = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(44 + i * bytesPerSample, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  // ── Start recording ───────────────────────────────────────────────────
+  async function startRecording() {
+    if (isRecording) return;                   // prevent double-start
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast('Audio recording is not supported by this browser.', 'error', 7000); return;
+    }
+    if (!window.MediaRecorder) {
+      toast('Audio recording is not supported by this browser.', 'error', 7000); return;
+    }
+
+    try {
+      recordingStream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, sampleRate: { ideal: 16000 },
+                 echoCancellation: true, noiseSuppression: true }
+      });
+    } catch (err) {
+      const msg =
+        (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')
+          ? 'Microphone access denied. Please allow microphone access and try again.'
+          : (err.name === 'NotFoundError')
+          ? 'No microphone was detected.'
+          : `Microphone error: ${err.message}`;
+      toast(msg, 'error', 7000);
+      return;
+    }
+
+    audioChunks  = [];
+    isRecording  = true;
+
+    const mimeType =
+      MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' :
+      MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')  ? 'audio/ogg;codecs=opus'  :
+      MediaRecorder.isTypeSupported('audio/webm')             ? 'audio/webm'              : '';
+
+    try {
+      mediaRecorder = mimeType
+        ? new MediaRecorder(recordingStream, { mimeType })
+        : new MediaRecorder(recordingStream);
+    } catch (err) {
+      toast(`Could not start MediaRecorder: ${err.message}`, 'error', 7000);
+      resetRecordingState();
+      return;
+    }
+
+    mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onerror = () => {
+      toast('Recording failed unexpectedly. Please try again.', 'error', 7000);
+      resetRecordingState();
+    };
+    mediaRecorder.onstop = handleRecordingStop;
+
+    mediaRecorder.start(250);   // collect 250 ms chunks
+    showRecordingUI();
+    startTimer();
+  }
+
+  // ── Stop recording (button click) ─────────────────────────────────────
+  function stopRecording() {
+    if (!isRecording || !mediaRecorder) return;
+    // Stop microphone tracks immediately so the browser indicator disappears.
+    if (recordingStream) {
+      recordingStream.getTracks().forEach(t => t.stop());
+      recordingStream = null;
+    }
+    stopTimer();
+    isRecording = false;
+    if (mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();       // triggers onstop asynchronously
+    }
+    showProcessingUI();   // show ⏳ while WAV conversion happens
+  }
+
+  // ── Handle onstop — convert and hand off to pipeline ─────────────────
+  async function handleRecordingStop() {
+    if (audioChunks.length === 0) {
+      toast('No audio was recorded. Please try again.', 'warning', 5000);
+      resetRecordingState();
+      return;
+    }
+    const mime    = (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm';
+    const rawBlob = new Blob(audioChunks, { type: mime });
+    audioChunks   = [];          // clear for next recording
+
+    if (recProcMsg) { recProcMsg.textContent = '⏳ Converting to WAV…'; recProcMsg.classList.remove('hidden'); }
+    try {
+      const wavBlob = await blobToWav(rawBlob);
+      const wavFile = new File([wavBlob], 'live_recording.wav', { type: 'audio/wav' });
+      state.source = 'mic';   // mark as microphone recording before handleFile runs
+      handleFile(wavFile);       // sets state.file and enables Analyze Audio
+      toast('Recording saved — click Analyze Audio', 'success', 4000);
+    } catch (err) {
+      toast(`Unable to process the recording. Please try again. (${err.message})`, 'error', 8000);
+    }
+    resetRecordingState();
+  }
+
+  // ── Button wiring ─────────────────────────────────────────────────────
+  btnRecord.addEventListener('click', () => { if (!isRecording) startRecording(); });
+  btnStop.addEventListener(  'click', () => { if ( isRecording) stopRecording();  });
+})();
 
 /* ── Health check ───────────────────────────────────────────────────────── */
 (async () => {

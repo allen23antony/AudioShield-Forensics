@@ -10,6 +10,7 @@ from typing import Any
 from ..fusion.combine import combine_evidence
 from ..fusion.report import generate_fusion_report, generate_json_report
 from ..forensics.analyze import analyze_signal
+from ..forensics.segment import run_segment_analysis
 from ..metadata.analyzer import analyze_metadata
 from ..metadata.extractor import extract_metadata, get_metadata_summary
 from ..report.generator import generate_comprehensive_report
@@ -48,18 +49,32 @@ def run_full_pipeline(audio_path: Path) -> dict[str, Any]:
     fusion = combine_evidence(ai_predictions, metadata_analysis, signal_analysis)
     generate_json_report(fusion, results_dir / "fusion_report.json")
     generate_fusion_report(fusion, results_dir / "fusion_report.txt")
+
+    # ── Segment-level detection (uses existing AASIST model — no retraining) ──
+    segment_analysis: dict[str, Any] | None = None
+    try:
+        segment_analysis = run_segment_analysis(audio)
+        (results_dir / "segment_report.json").write_text(
+            json.dumps(segment_analysis, indent=2, default=str), encoding="utf-8"
+        )
+    except Exception:
+        # Non-fatal: segment detection is supplementary; continue without it.
+        segment_analysis = None
+
     report_path = generate_comprehensive_report(
         audio,
         results_dir / "metadata_report.json",
         results_dir / "signal_report.json",
         results_dir / "fusion_report.json",
         results_dir / "comprehensive_report.pdf",
+        segment_analysis=segment_analysis,
     )
     return {
         "ai": ai_predictions,
         "metadata": metadata_payload,
         "signal": signal_analysis,
         "fusion": fusion,
+        "segment": segment_analysis,
         "report_path": str(report_path),
     }
 

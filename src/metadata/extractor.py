@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import json
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from ..utils.hashing import compute_hashes
 
 
 def _run_json_command(command: list[str]) -> dict[str, Any] | list[Any]:
@@ -72,9 +75,55 @@ def extract_metadata(audio_path: Path) -> dict[str, Any]:
         streams[0] if streams else {},
     )
 
+    # ── File integrity hashes (computed from raw bytes, not embedded metadata) ──
+    try:
+        hashes = compute_hashes(path)
+        md5_hash    = hashes["md5"]
+        sha256_hash = hashes["sha256"]
+    except (OSError, ValueError):
+        md5_hash    = None
+        sha256_hash = None
+
+    # ── Upload / server-side timestamp ────────────────────────────────────────
+    # Use the filesystem mtime of the file on the server as the upload time.
+    # Format as "YYYY-MM-DD HH:MM:SS IST" without raw UTC-offset strings.
+    try:
+        mtime_ts = path.stat().st_mtime
+        local_dt = datetime.fromtimestamp(mtime_ts)
+        # Use local timezone name if available, otherwise fall back to +HH:MM offset.
+        # On Windows, %Z returns the full name ("India Standard Time") not the
+        # abbreviation ("IST"). Map the common full names → short codes, then
+        # fall back to extracting capitals from the full name.
+        tz_full = local_dt.astimezone().strftime("%Z")
+        _TZ_SHORT: dict[str, str] = {
+            "India Standard Time":      "IST",
+            "Coordinated Universal Time": "UTC",
+            "Greenwich Mean Time":      "GMT",
+            "Eastern Standard Time":    "EST",
+            "Eastern Daylight Time":    "EDT",
+            "Central Standard Time":    "CST",
+            "Central Daylight Time":    "CDT",
+            "Mountain Standard Time":   "MST",
+            "Mountain Daylight Time":   "MDT",
+            "Pacific Standard Time":    "PST",
+            "Pacific Daylight Time":    "PDT",
+        }
+        if tz_full in _TZ_SHORT:
+            tz_name = _TZ_SHORT[tz_full]
+        elif len(tz_full) <= 5 and tz_full.isupper():
+            tz_name = tz_full        # already a short code (IST, UTC, GMT …)
+        else:
+            # Extract initials from multi-word names as last resort
+            tz_name = "".join(w[0] for w in tz_full.split() if w) or "LT"
+        upload_time: str | None = local_dt.strftime(f"%Y-%m-%d %H:%M:%S {tz_name}")
+    except OSError:
+        upload_time = None
+
     return {
         "file_name": path.name,
         "file_size": _first_value(format_info.get("size"), exiftool.get("FileSize")),
+        "md5_hash":    md5_hash,
+        "sha256_hash": sha256_hash,
         "format": _first_value(format_info.get("format_name"), exiftool.get("FileTypeExtension")),
         "duration": _first_value(format_info.get("duration"), exiftool.get("Duration")),
         "codec": _first_value(audio_stream.get("codec_name"), exiftool.get("AudioCodec")),
@@ -90,6 +139,17 @@ def extract_metadata(audio_path: Path) -> dict[str, Any]:
             audio_stream.get("tags", {}).get("encoder"),
             exiftool.get("Encoder"),
         ),
+        # ── Timestamp fields ──────────────────────────────────────────────────
+        # upload_time: filesystem mtime formatted cleanly (no raw +HH:MM offset).
+        "upload_time": upload_time,
+        # embedded_creation_time: only set when the audio *container* carries a
+        # genuine creation tag (MP4, M4A, etc.). None for plain FLAC/WAV.
+        "embedded_creation_time": _first_value(
+            format_info.get("tags", {}).get("creation_time"),
+            audio_stream.get("tags", {}).get("creation_time"),
+            exiftool.get("CreateDate"),
+        ),
+        # Kept for backward compatibility with analyzer.py checks.
         "creation_time": _first_value(
             format_info.get("tags", {}).get("creation_time"),
             exiftool.get("CreateDate"),
@@ -120,10 +180,12 @@ def extract_metadata(audio_path: Path) -> dict[str, Any]:
 
 
 def get_metadata_summary(metadata: dict[str, Any]) -> dict[str, Any]:
-    """Return the key normalized fields used for quick forensic review."""
+    """Return the key normalized fields used for quick forensic review (F10 JSON output)."""
     fields = (
         "file_name",
         "file_size",
+        "md5_hash",
+        "sha256_hash",
         "format",
         "duration",
         "codec",
@@ -131,8 +193,8 @@ def get_metadata_summary(metadata: dict[str, Any]) -> dict[str, Any]:
         "channels",
         "bitrate",
         "encoder",
-        "creation_time",
-        "modification_time",
+        "upload_time",
+        "embedded_creation_time",
         "device_info",
         "software",
         "comments",

@@ -23,7 +23,12 @@ def _parse_timestamp(value: Any) -> datetime | None:
 
 
 def check_timestamp_consistency(metadata: dict[str, Any]) -> dict[str, Any]:
-    """Check ordering and separation of creation and modification timestamps."""
+    """Check ordering and separation of creation and modification timestamps.
+
+    Identical timestamps are treated as informational rather than suspicious
+    because a browser upload writes the server-side copy in a single operation,
+    which naturally produces identical creation and modification times.
+    """
     creation = _parse_timestamp(metadata.get("creation_time"))
     modification = _parse_timestamp(metadata.get("modification_time"))
     if not creation or not modification:
@@ -32,6 +37,10 @@ def check_timestamp_consistency(metadata: dict[str, Any]) -> dict[str, Any]:
         creation = creation.replace(tzinfo=None)
         modification = modification.replace(tzinfo=None)
     difference = modification - creation
+    if difference.total_seconds() == 0:
+        # Identical timestamps are expected for uploaded copies — not suspicious.
+        return {"has_issue": False, "severity": "low",
+                "description": "Creation and modification timestamps are identical, consistent with a server-side uploaded copy."}
     if difference.total_seconds() < 0:
         return {"has_issue": True, "severity": "high", "description": "Modification time predates creation time; requires further investigation."}
     if difference.days > 30:

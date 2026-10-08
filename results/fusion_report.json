@@ -2,15 +2,15 @@
   "ai_evidence": {
     "cnn": {
       "label": "spoof",
-      "confidence": 0.9993817806243896
+      "confidence": 1.0
     },
     "svm": {
       "label": "spoof",
-      "confidence": 0.9921225766357823
+      "confidence": 0.9909325707487312
     },
     "aasist": {
       "label": "bonafide",
-      "confidence": 0.7787631899118423
+      "confidence": 0.8832983002066612
     },
     "consensus": "spoof",
     "ai_risk": "high",
@@ -43,7 +43,7 @@
   "fusion": {
     "overall_risk": "medium",
     "assessment": "inconclusive",
-    "confidence": 0.9234225157240048,
+    "confidence": 0.9580769569851308,
     "reasoning": "Source risks are AI=high, metadata=low, signal=low; applied documented rule-based logic.",
     "evidence_summary": [
       "AI consensus: spoof (risk: high).",

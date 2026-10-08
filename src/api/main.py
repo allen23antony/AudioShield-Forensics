@@ -54,7 +54,6 @@ if (RESULTS_DIR / "signal_plots").exists():
         StaticFiles(directory=str(RESULTS_DIR / "signal_plots")),
         name="signal_plots",
     )
-
 # Mount static frontend files.
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
@@ -197,6 +196,10 @@ async def analyze_audio(file_id: str) -> dict[str, Any]:
     # Fusion results.
     fusion_results: dict[str, Any] = dict(fusion_raw)
 
+    # Segment results (supplementary — None when segment analysis was skipped).
+    segment_raw = pipeline_output.get("segment") or {}
+    segment_results: dict[str, Any] | None = dict(segment_raw) if segment_raw else None
+
     report_available = bool(report_path_str and Path(report_path_str).is_file())
 
     return {
@@ -205,6 +208,7 @@ async def analyze_audio(file_id: str) -> dict[str, Any]:
         "metadata_results": metadata_results,
         "signal_results": signal_results,
         "fusion_results": fusion_results,
+        "segment_results": segment_results,
         "report_available": report_available,
     }
 
@@ -240,7 +244,7 @@ async def serve_signal_plot(plot: str) -> FileResponse:
     Valid plot names: ``waveform.png``, ``spectrogram.png``,
     ``mfcc.png``, ``pitch_contour.png``.
     """
-    allowed_plots = {"waveform.png", "spectrogram.png", "mfcc.png", "pitch_contour.png"}
+    allowed_plots = {"waveform.png", "spectrogram.png", "mfcc.png", "pitch_contour.png", "segment_timeline.png"}
     if plot not in allowed_plots:
         raise HTTPException(
             status_code=400,

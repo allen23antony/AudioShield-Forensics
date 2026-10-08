@@ -2,7 +2,7 @@ AudioShield Evidence Fusion Report
 ====================================
 Overall risk: medium
 Assessment: inconclusive
-Evidence confidence: 0.92
+Evidence confidence: 0.96
 
 Evidence summary:
 - AI consensus: spoof (risk: high).
